@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Dimensions  } from 'react-native';
-import { customStyle } from './positions';
+import { StyleSheet, Text, View, TouchableOpacity, TouchableWithoutFeedback, Dimensions  } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 export const ExpButton = (props) => {
@@ -16,28 +15,50 @@ export const ExpButton = (props) => {
         return setXPos(data)
     },[])
     const [position, setPosition] = useState(0)
-    const [pressCount, setPressCount] = useState(1)
+    const [rightCount, setRightCount] = useState(0)
+    const [wrongCount, setWrongCount] = useState(0)
     const [startTime, setStartTime] = useState(new Date() * 1)
     const [reactionTime, setReactionTime] = useState(0)
-    const changePosition = () => {
+    const [backColor, setBackColor] = useState("orange")
+    //function to handle correct button press
+    let changePosition = arg1 => () => {
         xPos.splice(position,1)
+        if(arg1 == 0){
+            setRightCount(rightCount => rightCount+1)
+            if(xPos.length != 0){
+                setBackColor("#00ff00")
+                setTimeout(function(){
+                    setBackColor("orange")
+                }, 100);
+            }
+        }else{
+            setWrongCount(wrongCount => wrongCount+1)
+            if(xPos.length != 0){
+                setBackColor("#ff0000")
+                setTimeout(function(){
+                    setBackColor("orange")
+                }, 100);
+            }
+        }
         if(xPos.length == 0){
             navigation.navigate('Home')
         }
         let randIndex = Math.floor(Math.random() * xPos.length)
         setPosition(randIndex)
         console.log(xPos[randIndex])
-        setPressCount(pressCount => pressCount+1)
         let elapsedTime = (new Date() * 1) - startTime
         setStartTime(new Date() * 1)
         setReactionTime(elapsedTime/1000)
     }
 
     return (
-        <View style={styles.container}>
-         <TouchableOpacity onPress = {changePosition} style={[styles.roundButton, xPos[position]]}>
-            <Text>O</Text>
-         </TouchableOpacity>
+        <View style={{...styles.container}}>
+            <TouchableWithoutFeedback onPress = {changePosition(1)}>
+            <View style={styles.container}/>
+            </TouchableWithoutFeedback>
+            <TouchableOpacity onPress = {changePosition(0)} style={{...styles.roundButton, ...xPos[position], backgroundColor:backColor}}>
+                <Text>O</Text>
+            </TouchableOpacity>
         </View>
     )
   }
@@ -45,7 +66,6 @@ export const ExpButton = (props) => {
   const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
       },
  
     roundButton: {

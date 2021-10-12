@@ -1,9 +1,12 @@
-import { StatusBar } from 'expo-status-bar';
+import * as Device from 'expo-device';
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, TouchableOpacity, View, Button, Text, TextPropTypes } from 'react-native';
 import { ExpButton } from './components/expButton';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import * as SQLite from "expo-sqlite";
+
+const db = SQLite.openDatabase("result.db")
 
 //Home screen function
 const BeginPage = ({navigation}) => {
@@ -22,6 +25,13 @@ const LandingPage = ({route, navigation}) => {
   const { testSelected } = route.params;
   const [startTime, setStartTime] = useState("Begin")
   useEffect(() => {
+    db.transaction((tx) => {
+      tx.executeSql("insert into summary (device, testProduct) values (?, ?)", ['test','test'],
+      (t, success) => { console.log(success) });
+      tx.executeSql("select * from summary", [], (_, { rows }) =>
+      console.log(JSON.stringify(rows))
+    );
+    });
       if(startTime>0){
           const toggle = setInterval(() => {
               setStartTime(startTime => startTime-1);
@@ -29,14 +39,14 @@ const LandingPage = ({route, navigation}) => {
           return () => clearInterval(toggle);
       }
       if(startTime==0){
-          
           navigation.navigate(testSelected + 'Screen')
           setStartTime("Begin")
       }
   })
   
   return <View style={styles.container}>
-          <Text>Welcome to {testSelected} test</Text>
+          <Text style={{fontWeight:'bold',fontSize:20}}>Device under test</Text>
+          <Text style={{ fontSize:18}}>{Device.modelName}</Text>
           <TouchableOpacity style={{...styles.homeButton}} onPress = {() => setStartTime(5)}>
             <Text>{startTime}</Text>
           </TouchableOpacity>
@@ -45,6 +55,13 @@ const LandingPage = ({route, navigation}) => {
 
 const Stack = createNativeStackNavigator();
 export default function App() {
+  useEffect(() => {
+    db.transaction((tx) => {
+      tx.executeSql(
+        "create table if not exists summary (id integer primary key not null, device text, testProduct text);"
+      );
+    });
+  }, []);
   return (
       <NavigationContainer>
         <Stack.Navigator  screenOptions={{
