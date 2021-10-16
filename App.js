@@ -2,6 +2,7 @@ import * as Device from 'expo-device';
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, TouchableOpacity, View, Button, Text, TextPropTypes } from 'react-native';
 import { ExpButton } from './components/expButton';
+import { resultPage } from './components/resultPage';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as SQLite from "expo-sqlite";
@@ -25,13 +26,13 @@ const LandingPage = ({route, navigation}) => {
   const { testSelected } = route.params;
   const [startTime, setStartTime] = useState("Begin")
   useEffect(() => {
-    db.transaction((tx) => {
+    /*db.transaction((tx) => {
       tx.executeSql("insert into summary (device, testProduct) values (?, ?)", ['test','test'],
       (t, success) => { console.log(success) });
       tx.executeSql("select * from summary", [], (_, { rows }) =>
       console.log(JSON.stringify(rows))
     );
-    });
+    });*/
       if(startTime>0){
           const toggle = setInterval(() => {
               setStartTime(startTime => startTime-1);
@@ -60,6 +61,9 @@ export default function App() {
       tx.executeSql(
         "create table if not exists summary (id integer primary key not null, device text, testProduct text);"
       );
+      tx.executeSql(
+        "create table if not exists tapResult (id integer primary key not null, tid integer, xPos integer, yPos integer, rightClick boolean, timeTaken real);"
+      );
     });
   }, []);
   return (
@@ -77,6 +81,7 @@ export default function App() {
           <Stack.Screen name="Home" component={BeginPage}  options={{title: 'Select a test'}}/>
           <Stack.Screen name="LandingPage" component={LandingPage} options={({ route }) => ({ title: route.params.testSelected + " test" })}/>
           <Stack.Screen name="TappingScreen" component={ExpButton}  options={{title: 'Tapping test'}}/>
+          <Stack.Screen name="resultPage" component={resultPage}  options={{title: 'Result Summary'}}/>
         </Stack.Navigator>
       </NavigationContainer>
   );
