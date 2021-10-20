@@ -5,7 +5,6 @@ import {Database} from "../Database"
 
 const db = new Database("result.db");
 let tid = 0;
-let res = []
 
 export const ExpButton = (props) => {
     const navigation = useNavigation();
@@ -40,11 +39,9 @@ export const ExpButton = (props) => {
         let elapsedTime = (new Date() * 1) - startTime
         if(arg1 == 0){ //on accurate press condition
             //insert data to result table
-            await db.execute("insert into tapResult (tid, xPos, yPos, rightClick, timeTaken) values (?, ?, ?, ?, ?)", [tid, parseFloat(xPos[position].bottom), parseFloat(xPos[position].right), true, elapsedTime/1000])
-            res = await db.execute("select * from tapResult where tid = ?", [tid])
+            await db.execute("insert into tapResult (tid, yPos, xPos, rightClick, timeTaken) values (?, ?, ?, ?, ?)", [tid, parseFloat(xPos[position].bottom), parseFloat(xPos[position].right), true, elapsedTime/1000])
         }else{ //on inaccurate press condition
-            await db.execute("insert into tapResult (tid, xPos, yPos, rightClick, timeTaken) values (?, ?, ?, ?, ?)", [tid, parseFloat(xPos[position].bottom), parseFloat(xPos[position].right), false, elapsedTime/1000])
-            res = await db.execute("select * from tapResult where tid = ?", [tid])
+            await db.execute("insert into tapResult (tid, yPos, xPos, rightClick, timeTaken) values (?, ?, ?, ?, ?)", [tid, parseFloat(xPos[position].bottom), parseFloat(xPos[position].right), false, elapsedTime/1000])
         }
 
         //after db update remove element from positions array
