@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, TouchableWithoutFeedback, Dimensions  } from 'react-native';
-import { useNavigation, CommonActions } from '@react-navigation/native';
+import { StyleSheet, Text, View, TouchableOpacity, Button, TouchableWithoutFeedback, Dimensions  } from 'react-native';
+import { useNavigation, useRoute, CommonActions } from '@react-navigation/native';
 import {Database} from "../Database"
 
 const db = new Database("result.db");
@@ -8,16 +8,26 @@ let tid = 0;
 
 export const ExpButton = (props) => {
     const navigation = useNavigation();
+    const route = useRoute();
     const [xPos, setXPos] = useState([])
+    let prod = route.params.product
+    let dev = route.params.device
 
     //function to run onMount
     useEffect(() => {
+        navigation.setOptions({
+            headerLeft: () => (<View></View>),
+            headerRight: () => (<View style={{flexDirection:"row"}}>
+                <Button onPress = {()=>navigation.goBack()} title = 'Quit' color = "#f11e"></Button>
+                </View>)
+        })
         let data = []
         //function to write testid data to db
         async function writeData() {
-            const res1 = await db.execute("insert into summary (device, testProduct) values (?, ?)", ['test','test'])
+            console.log(typeof prod)
+            const res1 = await db.execute("insert into summary (device, testProduct, testStatus) values (?, ?, ?)", [dev,prod,false])
             tid = res1.insertId
-            console.log(tid)
+            console.log(res1)
         }
         writeData()
 
@@ -50,6 +60,7 @@ export const ExpButton = (props) => {
         //perform state updates depending on array length and touch accuracy
         if(xPos.length == 0){
             //navigate to resultPage and reset navaigation states -- done to ensure correct back button behavior from results page
+            await db.execute("update summary set testStatus = ? where id = ?",[true, tid])
             navigation.dispatch(
             CommonActions.reset({
                 index: 1,
@@ -57,7 +68,7 @@ export const ExpButton = (props) => {
                 { name: 'Home' },
                 {
                     name: 'resultPage',
-                    params:  {tid: tid}
+                    params:  {tid: tid, device: dev, product: prod}
                 },
                 ],
             })

@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TouchableWithoutFeedback, Dimensions  } from 'react-native';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { Table, TableWrapper, Row, Rows, Col } from 'react-native-table-component';
-
 import {Database} from "../Database"
 import { TapResult } from './tapResultMap';
 
 const db = new Database("result.db");
 
 export const resultPage = (props) => {
+    const route = useRoute();
     const navigation = useNavigation();
     const [tableHead, SetTableHead] = useState(["",'Zone1', 'Zone2', 'Overall'])
     const [tableData, setTableData] = useState([
@@ -43,7 +43,8 @@ export const resultPage = (props) => {
             <View style={{margin: 7, alignItems: "center"}}>
                 <Text style = {{fontSize: 20, fontWeight: "100"}}>Summary Table</Text>
             </View>
-            <View style={{ flex: 1 , backgroundColor: "#fff", margin: 7, elevation: 13, borderWidth: 1, borderRadius: 10}}>
+            <View style={{ backgroundColor: "#fff", margin: 7, elevation: 13, borderWidth: 1, borderRadius: 10}}>
+
                 <Table borderStyle={{borderWidth: 0}} style={{paddingTop: 15, paddingLeft: 5}}>
                 <Row data={tableHead} flexArr={[2, 1, 1, 1]} style={styles.head} textStyle={styles.text}/>
                 <TableWrapper style={styles.wrapper}>
@@ -51,12 +52,18 @@ export const resultPage = (props) => {
                     <Rows data={tableData} flexArr={[1, 1, 1]} style={styles.row} textStyle={styles.text}/>
                 </TableWrapper>
                 </Table>
+                <View style ={{alignItems: 'center', borderWidth: 1, borderRadius:10, padding: 10, margin: 10}}>
+                    <Text style = {{fontWeight:'bold'}}>Device Tested: {props.route.params.device}</Text>
+                </View>
+                <View style ={{alignItems: 'center', borderWidth: 1, borderRadius:10, padding: 10, margin: 10}}>
+                    <Text style={{fontWeight:'bold'}}>Product Tested: {props.route.params.product}</Text>
+                </View>
             </View>
-            <View style={{ flex: 3, alignItems: "center", marginTop: 15}}>
+            <View style={{alignItems: "center", marginTop: 15}}>
                 <TouchableOpacity onPress = {() => navigation.navigate('TapResult', {params: {tid: props.route.params.tid, tdata: tableData}})} style={{...styles.roundButton}}>
                     <Text>View Detailed Results</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={{...styles.roundButton}}>
+                <TouchableOpacity onPress = {() => navigation.navigate('resultSelect')} style={{...styles.roundButton}}>
                     <Text>View Another Result</Text>
                 </TouchableOpacity>
             </View>
