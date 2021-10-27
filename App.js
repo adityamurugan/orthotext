@@ -4,6 +4,7 @@ import { StyleSheet, TouchableOpacity, View, Button, Text, TextPropTypes } from 
 import { ExpButton } from './components/expButton';
 import { TapResult } from './components/tapResultMap';
 import { resultPage } from './components/resultPage';
+import { SwipeCanvas } from './components/swipeTest/expCanvas';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as SQLite from "expo-sqlite";
@@ -76,6 +77,7 @@ export default function App() {
           <Stack.Screen name="Home" component={BeginPage}  options={{title: 'Select a test'}}/>
           <Stack.Screen name="LandingPage" component={LandingPage} options={({ route }) => ({ title: route.params.testSelected + " test" })}/>
           <Stack.Screen name="TappingScreen" component={ExpButton}  options={{title: 'Tapping test'}}/>
+          <Stack.Screen name="SwipeScreen" component={SwipeCanvas}  options={{title: 'Swiping test'}}/>
           <Stack.Screen name="resultPage" component={resultPage}  options={{title: 'Results'}}/>
           <Stack.Screen name="TapResult" component={TapResult}  options={{title: 'Detailed Result' }}/>
         </Stack.Navigator>
