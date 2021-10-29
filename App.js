@@ -5,6 +5,7 @@ import { ExpButton } from './components/expButton';
 import { TapResult } from './components/tapResultMap';
 import { resultPage } from './components/resultPage';
 import { SwipeCanvas } from './components/swipeTest/expCanvas';
+import { swipeResultPage } from './components/swipeTest/swipeResultPage';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { resultSelect } from './components/resultSelect';
@@ -88,17 +89,23 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   useEffect(() => {
     db.transaction((tx) => {
-      //tx.executeSql(
+      // tx.executeSql(
       //  "drop table if exists summary"
-      //);
+      // );
+      // tx.executeSql(
+      //   "drop table if exists tapResult"
+      // );
+      // tx.executeSql(
+      //   "drop table if exists swipeResult"
+      // );
       tx.executeSql(
-        "create table if not exists summary (id integer primary key not null, device text, testProduct text, testStatus boolean);"
+        "create table if not exists summary (id integer primary key not null, device text, testType text, testProduct text, testStatus boolean);"
       );
-      //tx.executeSql(
-      //  "drop table if exists tapResult"
-      //);
       tx.executeSql(
         "create table if not exists tapResult (id integer primary key not null, tid integer, xPos integer, yPos integer, rightClick boolean, timeTaken real);"
+      );
+      tx.executeSql(
+        "create table if not exists swipeResult (id integer primary key not null, tid integer, xDP real, yDP real, xPX integer, yPX integer, trialNumber integer, base64img text);"
       );
     });
   }, []);
@@ -121,6 +128,7 @@ export default function App() {
           <Stack.Screen name="resultPage" component={resultPage}  options={{title: 'Results'}}/>
           <Stack.Screen name="TapResult" component={TapResult}  options={{title: 'Detailed Result' }}/>
           <Stack.Screen name="resultSelect" component={resultSelect}  options={{title: 'Select data to view' }}/>
+          <Stack.Screen name="swipeResultPage" component={swipeResultPage}  options={{title: 'Results' }}/>
         </Stack.Navigator>
       </NavigationContainer>
   );

@@ -25,7 +25,7 @@ export const ExpButton = (props) => {
         //function to write testid data to db
         async function writeData() {
             console.log(typeof prod)
-            const res1 = await db.execute("insert into summary (device, testProduct, testStatus) values (?, ?, ?)", [dev,prod,false])
+            const res1 = await db.execute("insert into summary (device, testProduct, testStatus, testType) values (?, ?, ?, ?)", [dev,prod,false,"tapping"])
             tid = res1.insertId
             console.log(res1)
         }
