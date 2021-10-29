@@ -7,18 +7,22 @@ import {Database} from "../Database"
 
 const db = new Database("result.db");
 
+//component to generate cards based on test ids array
 const ResultCards = (props) => {
 const navigation = useNavigation()
 async function showFullResult(){
   let res = await db.execute('select device, testProduct from summary where id = ?',[props.id])
   let prod = res.rows[0].testProduct
   let dev = res.rows[0].device
-  navigation.navigate('resultPage', {tid: props.id, device: dev, product: prod});
+  if(props.valueTest=='tapping'){
+    navigation.navigate('resultPage', {tid: props.id, device: dev, product: prod});
+  }else{
+    navigation.navigate('swipeResultPage', {tid: props.id, device: dev, product: prod});
+  }
+  
 }
 return <View style={{padding: 10, borderWidth: 1, marginTop: 15, borderRadius: 10, width: "100%", alignItems: 'center'}}>
   <Text>Test Id: {props.id}</Text>
-  <Text>Overall Accuracy: {props.accuracy} %</Text>
-  <Text>Avg Reaction Time: {props.rTime} sec</Text>
   <TouchableOpacity onPress = {showFullResult} style = {{...styles.roundButton}}>
     <Text>View full results</Text>
   </TouchableOpacity>
@@ -26,7 +30,6 @@ return <View style={{padding: 10, borderWidth: 1, marginTop: 15, borderRadius: 1
 }
 
 export const resultSelect = (props) => {
-
     const [btnStatus, setBtnStatus] = useState(true)
     const [countLoop, setCountLoop] = useState([])
     const [open, setOpen] = useState(false);
@@ -35,37 +38,51 @@ export const resultSelect = (props) => {
       {label: 'Apple', value: 'apple'},
       {label: 'Banana', value: 'banana'}
     ]);
+    const [openTest, setOpenTest] = useState(false);
+    const [valueTest, setValueTest] = useState('tapping');
+    const [itemsTest, setTestItems] = useState([
+      {label: 'Swiping', value: 'swiping'},
+      {label: 'Tapping', value: 'tapping'}
+    ]);
 
     let data = []
 
+    //populate products dropdown based on test selected
     useEffect(()=>{
         async function getData(){
-            let productData = await db.execute('select distinct testProduct from summary where testStatus = ?',[true])
+            let productData = await db.execute('select distinct testProduct from summary where testStatus = ? and testType = ?',[true, valueTest])
             productData.rows.forEach((element,index) => {
                 data.push({label: element.testProduct, value: element.testProduct})
             });
         }
         getData()
         setItems(data)
-    },[])
+    },[valueTest])
 
+    //generate result ids array based on test and product selected
     async function showResults(){
-      let idArr = await db.execute('select id from summary where testProduct = ? and testStatus = true order by id desc limit 3',[value])
+      let table = (valueTest=='tapping')?'tapResult':'swipeResult'
+      let idArr = await db.execute('select id from summary where testProduct = ? and testStatus = true and testType = ? order by id desc limit 3',[value,valueTest])
       let idExtract = idArr.rows.map(a => a.id)
-      let resultDataOverall = await db.execute('select avg(timeTaken) as timeTaken, tid as tid from tapResult group by tid order by id desc ')
-      let resultCount = await db.execute('select count(rightClick) as rightCount, tid as tid from tapResult where rightClick = 1 group by tid order by id desc ')
+      let resultDataOverall = await db.execute('select tid as tid from ' + table + ' group by tid order by id desc')
       let filteredOverall = resultDataOverall.rows.filter(row => idExtract.includes(row.tid))
-      let filteredCount = resultCount.rows.filter(row => idExtract.includes(row.tid))
-      filteredOverall.forEach(function(element,index){
-        element.Count = filteredCount[index].rightCount
-      })
       setCountLoop(filteredOverall)
     }
     
   
     return (
       <View style = {{flex:1, padding: 15, marginHorizontal: 15, alignItems: 'center', zIndex: 10, position: 'relative'}}>
-        <Text style = {{marginBottom: 15}}>Select product:</Text>
+        <Text style = {{marginBottom: 15}}>Select Test:</Text>
+        <DropDownPicker
+          open={openTest}
+          value={valueTest}
+          items={itemsTest}
+          zIndex={20}
+          setOpen={setOpenTest}
+          setValue={setValueTest}
+          setItems={setTestItems}
+        />
+        <Text style = {{marginVertical: 15}}>Select Product:</Text>
         <DropDownPicker
           open={open}
           value={value}
@@ -81,7 +98,7 @@ export const resultSelect = (props) => {
         </TouchableOpacity>
         
         {countLoop?.map((datum, index) => (
-              <ResultCards key = {index} id = {countLoop[index].tid} accuracy = {countLoop[index].Count} rTime = {(countLoop[index].timeTaken).toFixed(2)}/>
+              <ResultCards key = {index} id = {countLoop[index].tid} valueTest = {valueTest}/>
             ))}
       </View>
     );
