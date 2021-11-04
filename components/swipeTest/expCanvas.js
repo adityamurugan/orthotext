@@ -118,8 +118,8 @@ export const SwipeCanvas = (props) => {
         onClear={handleClear}
         onGetData={handleData}
         disabled = {true}
-        minWidth={5}
-        maxWidth={7}
+        minWidth={6}
+        maxWidth={9}
         imageType={"image/png"}
         trimWhitespace = {true}
         webStyle={style} 
