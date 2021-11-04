@@ -8,6 +8,7 @@ import { SwipeCanvas } from './components/swipeTest/expCanvas';
 import { swipeResultPage } from './components/swipeTest/swipeResultPage';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { ExpScroll } from './components/scrollTest/expScroll';
 import { resultSelect } from './components/resultSelect';
 import DropDownPicker from 'react-native-dropdown-picker';
 import * as SQLite from "expo-sqlite";
@@ -16,14 +17,28 @@ const db = SQLite.openDatabase("result.db")
 
 //Home screen function
 const BeginPage = ({navigation}) => {
-  return <View style={styles.homeContainer}>
-          <TouchableOpacity style={styles.welcomeButton} onPress = {() => navigation.navigate('LandingPage', {testSelected: 'Tapping'})}>
-            <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Tapping Test</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={{...styles.welcomeButton}} onPress = {() => navigation.navigate('LandingPage', {testSelected: 'Swipe'})}>
-            <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Swiping Test</Text>
-          </TouchableOpacity>
-        </View> 
+  return  <View style = {{flex:1}}>
+            <View style={{...styles.homeContainer, alignItems: 'flex-end', justifyContent: "center"}}>
+              <TouchableOpacity style={styles.welcomeButton} onPress = {() => navigation.navigate('LandingPage', {testSelected: 'Tapping'})}>
+                  <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Tapping</Text>
+                  <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Test</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={{...styles.welcomeButton}} onPress = {() => navigation.navigate('LandingPage', {testSelected: 'Swipe'})}>
+                  <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Swiping</Text>
+                  <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Test</Text>
+              </TouchableOpacity>
+            </View> 
+            <View style={{...styles.homeContainer, alignItems: 'flex-start', justifyContent: "center"}}>
+              <TouchableOpacity style={styles.welcomeButton} onPress = {() => navigation.navigate('LandingPage', {testSelected: 'Scrolling'})}>
+                <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Scrolling</Text>
+                <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Test</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{...styles.welcomeButton}} onPress = {() => navigation.navigate('LandingPage', {testSelected: 'Swipe'})}>
+                <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Typing</Text>
+                <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Test</Text>
+              </TouchableOpacity>
+            </View> 
+          </View>
 }
 
 //Landing screen function - loads after a test is selected
@@ -129,6 +144,7 @@ export default function App() {
           <Stack.Screen name="TapResult" component={TapResult}  options={{title: 'Detailed Result' }}/>
           <Stack.Screen name="resultSelect" component={resultSelect}  options={{title: 'Select data to view' }}/>
           <Stack.Screen name="swipeResultPage" component={swipeResultPage}  options={{title: 'Results' }}/>
+          <Stack.Screen name="ScrollingScreen" component={ExpScroll}  options={{title: 'Scrolling Test' }}/>
         </Stack.Navigator>
       </NavigationContainer>
   );
@@ -175,7 +191,5 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
