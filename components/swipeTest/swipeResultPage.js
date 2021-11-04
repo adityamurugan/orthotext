@@ -32,7 +32,7 @@ export const swipeResultPage = (props) => {
             res.rows.forEach(element => {
                 col1.push(element.xDP.toFixed(0), element.yDP.toFixed(0))
                 col2.push(element.xPX, element.yPX)
-                colTrial.push('Trial ' + element.trialNumber)
+                colTrial.push('Trial ' + (element.trialNumber+1))
                 colHW.push('Height', 'Width')
                 heightarray.push(30,30)
             });
