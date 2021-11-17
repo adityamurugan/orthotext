@@ -10,6 +10,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ExpScroll } from './components/scrollTest/expScroll';
 import { resultSelect } from './components/resultSelect';
+import { ExpType } from './components/typeTest/expTyping';
 import DropDownPicker from 'react-native-dropdown-picker';
 import * as SQLite from "expo-sqlite";
 
@@ -33,7 +34,7 @@ const BeginPage = ({navigation}) => {
                 <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Scrolling</Text>
                 <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Test</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={{...styles.welcomeButton}} onPress = {() => navigation.navigate('LandingPage', {testSelected: 'Swipe'})}>
+              <TouchableOpacity style={{...styles.welcomeButton}} onPress = {() => navigation.navigate('LandingPage', {testSelected: 'Typing'})}>
                 <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Typing</Text>
                 <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Test</Text>
               </TouchableOpacity>
@@ -145,6 +146,7 @@ export default function App() {
           <Stack.Screen name="resultSelect" component={resultSelect}  options={{title: 'Select data to view' }}/>
           <Stack.Screen name="swipeResultPage" component={swipeResultPage}  options={{title: 'Results' }}/>
           <Stack.Screen name="ScrollingScreen" component={ExpScroll}  options={{title: 'Scrolling Test' }}/>
+          <Stack.Screen name="TypingScreen" component={ExpType}  options={{title: 'Typing Test' }}/>
         </Stack.Navigator>
       </NavigationContainer>
   );

@@ -18,12 +18,18 @@ export const ExpScroll = (props) => {
     const swipeComp = useRef(null)
     const [upd, setUpd] = useState(0)
     const [startTime, setStartTime] = useState(new Date() * 1)
+    const [trials, setTrials] = useState(0)
     const scrollWidth = Dimensions.get('window').width
     var btnSize = Dimensions.get('window').width*0.2
     const [positionArray, setPositionArray] = useState(posi)
 
     //function to execute on successful scroll
     function handleVerify(){
+        //calculate time to scroll
+        let timeElapsed = ((new Date() * 1) - startTime)/1000
+        console.log(trials)
+        setTrials(0)
+        console.log(timeElapsed)
         positionArray.splice(upd,1)
         setPositionArray([...positionArray])
         swipeComp.current.reset()
@@ -43,7 +49,10 @@ export const ExpScroll = (props) => {
 
     //on start scroll, start timing
     function handleStart(){
-        setStartTime(new Date() * 1)
+        if(trials == 0){
+            setStartTime(new Date() * 1)
+        }
+        setTrials(trials+1)
     }
 
     return (
