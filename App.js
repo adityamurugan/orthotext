@@ -11,6 +11,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ExpScroll } from './components/scrollTest/expScroll';
 import { resultSelect } from './components/resultSelect';
 import { ExpType } from './components/typeTest/expTyping';
+import { TestTypeDrop } from './components/typeTest/testSelect';
 import DropDownPicker from 'react-native-dropdown-picker';
 import * as SQLite from "expo-sqlite";
 
@@ -45,6 +46,7 @@ const BeginPage = ({navigation}) => {
 //Landing screen function - loads after a test is selected
 const LandingPage = ({route, navigation}) => {
   const { testSelected } = route.params;
+  const [testMode, setTestMode] = useState('insert')
   const [startTime, setStartTime] = useState("Select product")
   const [btnState, SetBtnState] = useState(true)
   const [productOpen, setProductOpen] = useState(false);
@@ -55,6 +57,11 @@ const LandingPage = ({route, navigation}) => {
     {label: 'Hand Loop', value: 'Hand Loop'},
     {label: 'Orthotext', value: 'Orthotext'}
   ]);
+
+  const onTestUpdate = (testMode) => {
+    setTestMode(testMode)
+  }
+
   useEffect(() => {
       if(startTime>0){
           const toggle = setInterval(() => {
@@ -62,9 +69,12 @@ const LandingPage = ({route, navigation}) => {
           }, 1000);
           return () => clearInterval(toggle);
       }
-      if(startTime==0){
+      if(startTime==0 && testSelected != 'Typing'){
           navigation.navigate(testSelected + 'Screen', {'product': productValue, 'device': Device.modelName})
           setStartTime("Begin")
+      }else if (startTime==0 && testSelected == 'Typing'){
+        navigation.navigate(testSelected + 'Screen', {'product': productValue, 'device': Device.modelName, 'testMode': testMode})
+        setStartTime("Begin")
       }
   })
   
@@ -74,7 +84,7 @@ const LandingPage = ({route, navigation}) => {
           <View style = {{padding: 20, alignItems: "center", paddingHorizontal: 80}}>
             <Text style={{fontWeight:'bold',fontSize:20, marginBottom: 8}}>Select product to test</Text>
             <DropDownPicker
-              zIndex={3000}
+              zIndex={5000}
               zIndexInverse={1000}
               open={productOpen}
               value={productValue}
@@ -90,6 +100,12 @@ const LandingPage = ({route, navigation}) => {
               textStyle = {{textAlign: 'center', fontSize:18}}
             />
           </View>
+          {testSelected == 'Typing' && 
+            <View style = {{padding: 20, alignItems: "center", paddingHorizontal: 80}}>
+              <Text style={{fontWeight:'bold',fontSize:20, marginBottom: 8}}>Select test mode</Text>
+              <TestTypeDrop onUpdate={onTestUpdate}></TestTypeDrop>
+            </View>
+          }
 
           <TouchableOpacity disabled = {btnState} style={(btnState)?{...styles.homeButtonDisabled}:{...styles.homeButton}} onPress = {() => setStartTime(5)}>
             <Text>{startTime}</Text>

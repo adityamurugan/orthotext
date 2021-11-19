@@ -1,11 +1,12 @@
 import React from "react";
 import {SafeAreaView, StyleSheet, TextInput, View, Text } from "react-native";
-import { useNavigation} from '@react-navigation/native';
+import { useNavigation, useRoute, CommonActions, NavigationContainer } from '@react-navigation/native';
 let wrongIndexes
-let testType = 'skip'
 let accurateStrokes, inaccurateStrokes, startTime, completedIndex, accuracyIndex, wordLength, wordMistakes, nextWordLength
 
 export const ExpType = (props) => {
+  const navigation = useNavigation();
+  const route = useRoute();
   const [text, setText] = React.useState('');
   const [inputText, setInputText] = React.useState('');
   const [currentIndex, setCurrentIndex] = React.useState(0);
@@ -18,7 +19,9 @@ export const ExpType = (props) => {
   let clr = charColor
   let chrs = chars
   const inputBox = React.useRef();
-  const navigation = useNavigation();
+  let prod = route.params.product
+  let dev = route.params.device
+  let testType = route.params.testMode 
 
   //initialize values on first render
   React.useEffect(() => {
@@ -98,7 +101,6 @@ export const ExpType = (props) => {
             return null
           }
           //calculate and set accuracy
-          //console.log(currentIndex, accuracyIndex)
           if(currentIndex==accuracyIndex){
             accuracyIndex = currentIndex +1
             inaccurateStrokes = inaccurateStrokes + 1

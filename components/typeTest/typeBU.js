@@ -47,3 +47,26 @@ export const ExpType = () => {
     </TextInput>
   );
 };
+
+            //---------------------------------
+            //--------BACKUP ALGO TO EXPLORE----
+            //----------------------------------
+            // let i = currentIndex - 1
+            // let j = currentIndex
+            // wordLength = 0
+            // while(chars[i] != " " && i >= 0){
+            //     wordLength = wordLength + 1
+            //     i--
+            // }
+            // console.log(wordLength)
+            // console.log(nextWordLength)
+            // if(wordLength == nextWordLength){
+            //   console.log("here")
+            //   completedIndex = currentIndex + 1
+            // }
+            // nextWordLength = 0
+            // while(chars[j+1] != " " && j < chars.length){
+            //   nextWordLength = nextWordLength + 1
+            //   j++
+            // }
+            //------------------------------------
