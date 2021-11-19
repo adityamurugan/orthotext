@@ -1,41 +1,54 @@
 import React from "react";
 import {SafeAreaView, StyleSheet, TextInput, View, Text } from "react-native";
-import { acc } from "react-native-reanimated";
+import { useNavigation} from '@react-navigation/native';
 let wrongIndexes
-let testType = 'insert'
-let accurateStrokes, inaccurateStrokes
-
+let testType = 'skip'
+let accurateStrokes, inaccurateStrokes, startTime, completedIndex, accuracyIndex, wordLength, wordMistakes, nextWordLength
 
 export const ExpType = (props) => {
   const [text, setText] = React.useState('');
   const [inputText, setInputText] = React.useState('');
   const [currentIndex, setCurrentIndex] = React.useState(0);
-  const sentence = "She didn't understand how change worked. When she looked at today compared to yesterday, there was nothing that she could see that was different. Yet, when she looked at today compared to last year, she couldn't see how anything was ever the same."
+  const sentence = "She glanced up into the sky to watch the clouds taking shape."
   const [chars,setChars] = React.useState([...sentence])
   const [charColor,setCharColor] = React.useState([])
   const [prevCount,setPrevCount] = React.useState(0)
-  const [startTime, setStartTime] = React.useState(0)
   const [typingAccuracy, setAccuracy] = React.useState(0)
+  const [wordspm, setWPM] = React.useState(0)
   let clr = charColor
   let chrs = chars
   const inputBox = React.useRef();
+  const navigation = useNavigation();
 
   //initialize values on first render
   React.useEffect(() => {
     wrongIndexes = []
     accurateStrokes = 0
     inaccurateStrokes = 0
+    completedIndex = 0
+    startTime = 0
+    accuracyIndex = 0
+    wordLength = 0
+    let j=0
+    nextWordLength = 0
+    while(chars[j] != " "){
+      nextWordLength = nextWordLength + 1
+      j++
+    }
   },[])
 
+
   const pressTrigger = (text) =>{
-    console.log(startTime)
+    //console.log(text)
     if(startTime == 0){
-      setStartTime(Date.now()*1)
+      startTime = Date.now()*1
     }
     setPrevCount(text?.length)
     if(prevCount>text?.length){
       console.log('Backspace')
-    }else{
+      //keyPressEvent('Backspace')
+    }
+    else{
       if(text){
         keyPressEvent(text[text?.length-1])
       }
@@ -43,37 +56,73 @@ export const ExpType = (props) => {
   }
 
   const keyPressEvent = (enteredChar) =>{
-      //scrollBox.current.scrollTo({x: currentIndex*8, y: 5, animated: true})
       if(enteredChar != 'Backspace'){
-        setText(text+enteredChar)
+        if (chars[currentIndex] == " " && testType == 'skip'){
+          if(wrongIndexes.length > 0){
+            completedIndex = wrongIndexes[0]
+          }else{
+            //console.log(currentIndex)
+            completedIndex = currentIndex+1
+          }
+        }
         if(enteredChar==chars[currentIndex]){
+          //when space is pressed, if no inaccuacies in completed word, prevent backspace
+          console.log(chars[currentIndex])
+          if (chars[currentIndex] == " " && testType == 'insert'){
+            if(wrongIndexes.length > 0){
+              completedIndex = wrongIndexes[0]
+            }else{
+              //console.log(currentIndex)
+              completedIndex = currentIndex+1
+            }
+          }
           //calculate and set accuracy
-          accurateStrokes = accurateStrokes + 1
-          let acc = (accurateStrokes/(accurateStrokes+inaccurateStrokes)*100).toFixed(2)
-          setAccuracy(acc)
+          //console.log(currentIndex, accuracyIndex)
+          if(currentIndex==accuracyIndex){
+            accuracyIndex = currentIndex +1 
+            accurateStrokes = accurateStrokes + 1
+            let acc = (accurateStrokes/(accurateStrokes+inaccurateStrokes)*100).toFixed(2)
+            setAccuracy(acc)
+          }
           //calculate and set WPM
-
+          let timeNow = Date.now()*1
+          let timeElapsed = (timeNow - startTime)/60000
+          let wpm = (accurateStrokes/5)/timeElapsed
+          setWPM(wpm.toFixed(2))
           //set char bgColor to green
           clr[currentIndex]="#1C7947"
           setCharColor([...clr])
           setCurrentIndex(currentIndex+1)
         }else{
+          if(currentIndex-wrongIndexes.length+1>sentence.length){
+            return null
+          }
           //calculate and set accuracy
-          inaccurateStrokes = inaccurateStrokes + 1
-          let acc = (accurateStrokes/(accurateStrokes+inaccurateStrokes)*100).toFixed(2)
-          setAccuracy(acc)
+          //console.log(currentIndex, accuracyIndex)
+          if(currentIndex==accuracyIndex){
+            accuracyIndex = currentIndex +1
+            inaccurateStrokes = inaccurateStrokes + 1
+            let acc = (accurateStrokes/(accurateStrokes+inaccurateStrokes)*100).toFixed(2)
+            setAccuracy(acc)
+          }
           //set char bgColor to red
           clr[currentIndex]="#E94560"
-          if(testType=='insert' && chars[currentIndex]== " "){
+          if(testType=='insert'){
             chrs.splice(currentIndex,0,enteredChar)
             setChars([...chrs])
             setCharColor([...clr])
             wrongIndexes.push(currentIndex)
+          }else{
+            wrongIndexes.push(currentIndex)
           }
           setCurrentIndex(currentIndex+1)
-          
         }
       }else{
+        //prevent backspace to completed word
+
+        if(currentIndex == completedIndex){
+          return null
+        }
         if(testType!='noDelete'){
           //console.log(currentIndex)
           setText(text.slice(0, -1))
@@ -82,6 +131,11 @@ export const ExpType = (props) => {
             if(wrongIndexes.includes(currentIndex-1)){
               chrs.splice(currentIndex-1,1)
               setChars([...chrs])
+              wrongIndexes.splice(wrongIndexes.indexOf(currentIndex-1), 1);
+              accuracyIndex = accuracyIndex - 1
+            }
+          }else{
+            if(wrongIndexes.includes(currentIndex-1)){
               wrongIndexes.splice(wrongIndexes.indexOf(currentIndex-1), 1);
             }
           }
@@ -94,33 +148,41 @@ export const ExpType = (props) => {
 
   return (
     <SafeAreaView style={{flex:1, backgroundColor: "#393E46"}}>
-        <Text>{typingAccuracy} %</Text>
-        <View style={{paddingHorizontal: 20, position: "absolute",top:"30%",flexShrink:1,  backgroundColor: "#393E46"}}>
-          <Text style={{fontSize:30, textAlign: "left", lineHeight: 40}}>
+        <View style = {{flexDirection: "row", height: "10%", justifyContent: "space-evenly", alignItems: "stretch", marginTop: 20}}>
+          <View style={{borderWidth: 1, width: "30%", alignItems: "center", justifyContent: "space-evenly", borderRadius: 20, backgroundColor: "white"}}>
+            <Text style={{fontSize: 20, fontWeight: "bold"}}>Accuracy</Text>
+            <Text>{typingAccuracy} %</Text>
+          </View>
+          <View style={{borderWidth: 1, width: "30%", alignItems: "center", justifyContent: "space-evenly", backgroundColor: "white", borderRadius: 20}}>
+            <Text style={{fontSize: 20, fontWeight: "bold"}}>WPM</Text>
+            <Text>{wordspm}</Text>
+          </View>
+        </View>
+        <View style={{paddingHorizontal:30, position: "absolute",top:"30%",flex:1,  backgroundColor: "#393E46"}}>
+          <Text style={{fontSize:30, textAlign: "center", lineHeight: 40}}>
           {chars.map((char, index) => (
             <Text key = {index} style={{color: "white", textDecorationLine:currentIndex==index?"underline":"none", backgroundColor: charColor[index]?charColor[index]:"#393E46"}}>{char}</Text>
           ))}
           </Text>
         </View>  
-      <View style={{position: "absolute",top:"0%", padding:0, flex:1, width: "100%", height: "100%"}}>
-      <TextInput style={{ fontSize:20, ...styles.input }} value = {inputText}
-                onChangeText = {inputText => setInputText(inputText)}
-                onChange = {e => {
-                  pressTrigger(e.nativeEvent.text)
-                }}
-                autoCorrect = {false}
-                autoCapitalize = {'none'}
-                autoComplete = {'off'}
-                caretHidden = {true}
-                onKeyPress = {e => {
-                  if(e.nativeEvent.key == 'Backspace'){
-                    keyPressEvent('Backspace')
-                  }
-                }}
-                ref = {inputBox}
-                keyboardType = 'default'/>
-
-      </View>
+        <View style={{position: "absolute",top:"0%", padding:0, flex:1, width: "100%", height: "100%"}}>
+        <TextInput style={{ fontSize:20, ...styles.input }} value = {inputText}
+            onChangeText = {inputText => setInputText(inputText)}
+            onChange = {e => {
+              pressTrigger(e.nativeEvent.text)
+            }}
+            autoCorrect = {false}
+            autoCapitalize = {'none'}
+            autoComplete = {'off'}
+            caretHidden = {true}
+            onKeyPress = {e => {
+              if(e.nativeEvent.key == 'Backspace'){
+                keyPressEvent('Backspace')
+              }
+            }}
+            ref = {inputBox}
+            keyboardType = 'default'/>
+        </View>
     </SafeAreaView>
   );
 };
