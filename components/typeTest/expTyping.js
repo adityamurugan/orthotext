@@ -1,8 +1,9 @@
 import React from "react";
 import {SafeAreaView, StyleSheet, TextInput, View, Text } from "react-native";
 import { useNavigation, useRoute, CommonActions, NavigationContainer } from '@react-navigation/native';
+import {sampleSentences} from './sentences'
 let wrongIndexes
-let accurateStrokes, inaccurateStrokes, startTime, completedIndex, accuracyIndex, wordLength, wordMistakes, nextWordLength
+let accurateStrokes, inaccurateStrokes, startTime, completedIndex, accuracyIndex, wordLength, wordMistakes, nextWordLength, arr, trialCount
 
 export const ExpType = (props) => {
   const navigation = useNavigation();
@@ -10,7 +11,7 @@ export const ExpType = (props) => {
   const [text, setText] = React.useState('');
   const [inputText, setInputText] = React.useState('');
   const [currentIndex, setCurrentIndex] = React.useState(0);
-  const sentence = "She glanced up into the sky to watch the clouds taking shape."
+  const [sentence, setSentence] = React.useState(sampleSentences[6].sentence)
   const [chars,setChars] = React.useState([...sentence])
   const [charColor,setCharColor] = React.useState([])
   const [prevCount,setPrevCount] = React.useState(0)
@@ -25,6 +26,15 @@ export const ExpType = (props) => {
 
   //initialize values on first render
   React.useEffect(() => {
+    trialCount = 0
+    arr = [];
+    while(arr.length < 5){
+        var r = Math.floor(Math.random() * (50 - 1 + 1) + 1)
+        if(arr.indexOf(r) === -1) arr.push(r);
+    }
+    console.log(arr)
+    setSentence(sampleSentences[arr[trialCount]].sentence)
+    trialCount = trialCount + 1
     wrongIndexes = []
     accurateStrokes = 0
     inaccurateStrokes = 0
@@ -39,6 +49,25 @@ export const ExpType = (props) => {
       j++
     }
   },[])
+
+  React.useEffect(()=>{
+    wrongIndexes = []
+    accurateStrokes = 0
+    inaccurateStrokes = 0
+    completedIndex = 0
+    startTime = 0
+    accuracyIndex = 0
+    wordLength = 0
+    console.log(trialCount)
+    setChars([...sentence])
+    setCharColor([])
+    setPrevCount(0)
+    setAccuracy(0)
+    setWPM(0)
+    setCurrentIndex(0)
+    setInputText('')
+    setText('')
+  },[sentence])
 
 
   const pressTrigger = (text) =>{
@@ -60,11 +89,28 @@ export const ExpType = (props) => {
 
   const keyPressEvent = (enteredChar) =>{
       if(enteredChar != 'Backspace'){
+        //if trial count < 5, move to next trial or navigate home
+        if(currentIndex+1==sentence.length && (testType == 'noDelete' || testType == 'skip')){
+          if(trialCount == 5){
+            navigation.navigate("Home")
+          }else{
+            setSentence(sampleSentences[arr[trialCount]].sentence)
+            trialCount = trialCount + 1
+          }
+        }else if(currentIndex-wrongIndexes.length+1==sentence.length){
+          if(trialCount == 5){
+            navigation.navigate("Home")
+          }else{
+            setSentence(sampleSentences[arr[trialCount]].sentence)
+            trialCount = trialCount + 1
+          }
+        }
+
+        //if correct character is entered =>
         if (chars[currentIndex] == " " && testType == 'skip'){
           if(wrongIndexes.length > 0){
             completedIndex = wrongIndexes[0]
           }else{
-            //console.log(currentIndex)
             completedIndex = currentIndex+1
           }
         }
@@ -75,7 +121,6 @@ export const ExpType = (props) => {
             if(wrongIndexes.length > 0){
               completedIndex = wrongIndexes[0]
             }else{
-              //console.log(currentIndex)
               completedIndex = currentIndex+1
             }
           }
@@ -121,7 +166,6 @@ export const ExpType = (props) => {
         }
       }else{
         //prevent backspace to completed word
-
         if(currentIndex == completedIndex){
           return null
         }
@@ -161,7 +205,7 @@ export const ExpType = (props) => {
           </View>
         </View>
         <View style={{paddingHorizontal:30, position: "absolute",top:"30%",flex:1,  backgroundColor: "#393E46"}}>
-          <Text style={{fontSize:30, textAlign: "center", lineHeight: 40}}>
+          <Text style={{fontSize:30, textAlign: "left", lineHeight: 40}}>
           {chars.map((char, index) => (
             <Text key = {index} style={{color: "white", textDecorationLine:currentIndex==index?"underline":"none", backgroundColor: charColor[index]?charColor[index]:"#393E46"}}>{char}</Text>
           ))}

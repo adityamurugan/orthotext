@@ -32,7 +32,7 @@ export const swipeResultPage = (props) => {
             res.rows.forEach(element => {
                 col1.push(element.xDP.toFixed(0), element.yDP.toFixed(0))
                 col2.push(element.xPX, element.yPX)
-                colTrial.push('Trial ' + (element.trialNumber+1))
+                colTrial.push((element.trialNumber+1))
                 colHW.push('Height', 'Width')
                 heightarray.push(30,30)
             });
@@ -53,20 +53,20 @@ export const swipeResultPage = (props) => {
                 <View style={{ backgroundColor: "#ececec", width:"45%", minHeight:200, elevation: 13, borderRadius: 20, justifyContent: "space-evenly", alignItems: "center"}}>
                     <Text style={{fontSize: 25, fontWeight:"bold"}}>Height</Text>
                     <Text style={{fontSize: 17, fontWeight:"bold"}}>Max</Text>
-                    <Text>{sumHeight[0]?.maxYDP.toFixed(0)} DP / {sumHeight[0]?.maxYPX.toFixed(0)} PX</Text>
-                    <Text style={{fontSize: 17, fontWeight:"bold"}}>Min</Text>
-                    <Text>{sumHeight[0]?.minYDP.toFixed(0)} DP / {sumHeight[0]?.minYPX.toFixed(0)} PX</Text>
-                    <Text style={{fontSize: 17, fontWeight:"bold"}}>Avg</Text>
-                    <Text>{sumHeight[0]?.avgYDP.toFixed(0)} DP / {sumHeight[0]?.avgYPX.toFixed(0)} PX</Text>
-                </View>
-                <View style={{ backgroundColor: "#ececec", width:"45%", minHeight:200, elevation: 13, borderRadius: 20, justifyContent: "space-evenly", alignItems: "center"}}>
-                    <Text style={{fontSize: 25, fontWeight:"bold"}}>Width</Text>
-                    <Text style={{fontSize: 17, fontWeight:"bold"}}>Max</Text>
                     <Text>{sumWidth[0]?.maxXDP.toFixed(0)} DP / {sumWidth[0]?.maxXPX.toFixed(0)} PX</Text>
                     <Text style={{fontSize: 17, fontWeight:"bold"}}>Min</Text>
                     <Text>{sumWidth[0]?.minXDP.toFixed(0)} DP / {sumWidth[0]?.minXPX.toFixed(0)} PX</Text>
                     <Text style={{fontSize: 17, fontWeight:"bold"}}>Avg</Text>
                     <Text>{sumWidth[0]?.avgXDP.toFixed(0)} DP / {sumWidth[0]?.avgXPX.toFixed(0)} PX</Text>
+                </View>
+                <View style={{ backgroundColor: "#ececec", width:"45%", minHeight:200, elevation: 13, borderRadius: 20, justifyContent: "space-evenly", alignItems: "center"}}>
+                    <Text style={{fontSize: 25, fontWeight:"bold"}}>Width</Text>
+                    <Text style={{fontSize: 17, fontWeight:"bold"}}>Max</Text>
+                    <Text>{sumHeight[0]?.maxYDP.toFixed(0)} DP / {sumHeight[0]?.maxYPX.toFixed(0)} PX</Text>
+                    <Text style={{fontSize: 17, fontWeight:"bold"}}>Min</Text>
+                    <Text>{sumHeight[0]?.minYDP.toFixed(0)} DP / {sumHeight[0]?.minYPX.toFixed(0)} PX</Text>
+                    <Text style={{fontSize: 17, fontWeight:"bold"}}>Avg</Text>
+                    <Text>{sumHeight[0]?.avgYDP.toFixed(0)} DP / {sumHeight[0]?.avgYPX.toFixed(0)} PX</Text>
                 </View>
             </View>
             <View style ={{alignItems: 'center', borderWidth: 1, borderRadius:10, padding: 10, margin: 10}}>
@@ -78,7 +78,7 @@ export const swipeResultPage = (props) => {
             <View style={{margin: 7, alignItems: "center"}}>
                 <Text style = {{fontSize: 20, fontWeight: "100"}}>Result Table</Text>
             </View>
-            <View style={{ backgroundColor: "#fff", margin: 17, elevation: 13, borderRadius: 20}}>
+            <View style={{ backgroundColor: "#fff", margin: 2, elevation: 13, borderRadius: 20}}>
                 <Table style={{flexDirection: 'row', margin: 16}} borderStyle={{borderWidth:1, borderColor: "#ececec"}}>
                 <TableWrapper style={{width: 80}}>
                     <Cell data="" style={styles.singleHead}/>

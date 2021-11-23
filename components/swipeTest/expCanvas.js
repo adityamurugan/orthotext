@@ -48,17 +48,16 @@ export const SwipeCanvas = (props) => {
 
     // Called after ref.current.readSignature() reads a non-empty base64 string
     async function handleOK(signature){
+      //console.log(signature)
       let wth = 0
       let ht = 0
       await Image.getSize(signature, (width, height) => {
         wth = width;
         ht = height
+        db.execute("update swipeResult set xPX = ? , yPX = ?, base64img =? where tid = ? and trialNumber = ?",[ht, wth, signature, tid, trialCount])
       }, (error) => {
         console.error(`Couldn't get the image size: ${error.message}`);
       });
-      await db.execute("update swipeResult set xPX = ? , yPX = ?, base64img =? where tid = ? and trialNumber = ?",[wth, ht, signature, tid, trialCount])
-      let res = await db.execute("select * from swipeResult where tid = ? and trialNumber = ?", [tid, trialCount])
-      //console.log(res.rows)
       setTrialState(false)
       //ref.current.clearSignature()
       console.log(trialCount)
@@ -102,7 +101,7 @@ export const SwipeCanvas = (props) => {
          ,maxX = Math.max.apply(null, data[0].points.map(function(a){return a.x;}))
       var minY = Math.min.apply(null, data[0].points.map(function(a){return a.y;}))
          ,maxY = Math.max.apply(null, data[0].points.map(function(a){return a.y;}))
-         await db.execute("insert into swipeResult (tid, xDP, yDP, trialNumber) values (?,?,?,?)",[tid, maxX-minX, maxY-minY, trialCount])
+         await db.execute("insert into swipeResult (tid, yDP, xDP, trialNumber) values (?,?,?,?)",[tid, maxX-minX, maxY-minY, trialCount])
     };
   
     return (
@@ -125,7 +124,7 @@ export const SwipeCanvas = (props) => {
         webStyle={style} 
       />
       </View>
-      <View style={{alignSelf:"center", position: "absolute", bottom: "7%"}}>
+      <View style={{alignSelf:"center", position: "absolute", bottom: "7%", zIndex: 15, width: "50%"}}>
         <TouchableOpacity disabled = {trialState==false?false:true} style={(trialState)?{...styles.disabledNextButton}:{...styles.nextButton}} onPress={handleNext}>
           <Text>{trialState==false && trialCount < 9 ?'Next trial':'Swipe'}</Text>
         </TouchableOpacity>
@@ -142,10 +141,7 @@ const styles = StyleSheet.create({
       nextButton: {
         alignItems: 'center',
         justifyContent: 'center',
-        width: 150,
-        height: 20,
-        backgroundColor: "#FDFDFD",
-        elevation: 7,
+        backgroundColor: "gray",
         zIndex:10,
         padding: 20,
         borderRadius: 20,
@@ -153,8 +149,6 @@ const styles = StyleSheet.create({
       disabledNextButton: {
         alignItems: 'center',
         justifyContent: 'center',
-        width: 150,
-        height: 20,
         borderColor: "red",
         borderWidth: 2,
         backgroundColor: "#FDFDFD",

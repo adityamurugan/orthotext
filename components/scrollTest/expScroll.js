@@ -14,6 +14,7 @@ LogBox.ignoreLogs(['Animated: `useNativeDriver`']);
 
 export const ExpScroll = (props) => {
     const navigation = useNavigation();
+    const route = useRoute();
     const posi = JSON.parse(JSON.stringify(positionsData));
     const swipeComp = useRef(null)
     const [upd, setUpd] = useState(0)
@@ -22,12 +23,27 @@ export const ExpScroll = (props) => {
     const scrollWidth = Dimensions.get('window').width
     var btnSize = Dimensions.get('window').width*0.2
     const [positionArray, setPositionArray] = useState(posi)
+    let prod = route.params.product
+    let dev = route.params.device
+
+    //create entry in swipe test summary table at start
+    useEffect(() => {
+        //function to write testid data to db
+        async function writeData() {
+            const res1 = await db.execute("insert into summary (device, testProduct, testStatus, testType) values (?, ?, ?, ?)", [dev,prod,false,"scrolling"])
+            tid = res1.insertId
+        }
+        writeData()
+        },[])
 
     //function to execute on successful scroll
-    function handleVerify(){
+    async function handleVerify(){
         //calculate time to scroll
         let timeElapsed = ((new Date() * 1) - startTime)/1000
-        console.log(trials)
+        await db.execute("insert into scrollResult (tid, xPos, yPos, alignment, trials, timeTaken) values (?,?,?,?,?,?)",[tid, positionArray[upd].left, positionArray[upd].bottom, positionArray[upd].alignment, trials, timeElapsed])
+        let res = await db.execute("select * from scrollResult where tid = ?",[tid])       
+        console.log(res)
+        //console.log(trials)
         setTrials(0)
         console.log(timeElapsed)
         positionArray.splice(upd,1)
@@ -35,6 +51,7 @@ export const ExpScroll = (props) => {
         swipeComp.current.reset()
         console.log(positionArray.length)
         if(positionArray.length==0){
+            await db.execute("update summary set testStatus = ? where id = ?", [true, tid])
             navigation.navigate("Home")
         }
         let randIndex = Math.floor(Math.random() * positionArray.length)

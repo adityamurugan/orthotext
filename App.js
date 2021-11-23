@@ -22,22 +22,22 @@ const BeginPage = ({navigation}) => {
   return  <View style = {{flex:1}}>
             <View style={{...styles.homeContainer, alignItems: 'flex-end', justifyContent: "center"}}>
               <TouchableOpacity style={styles.welcomeButton} onPress = {() => navigation.navigate('LandingPage', {testSelected: 'Tapping'})}>
-                  <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Tapping</Text>
-                  <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Test</Text>
+                  <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Tapping</Text>
+                  <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Test</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={{...styles.welcomeButton}} onPress = {() => navigation.navigate('LandingPage', {testSelected: 'Swipe'})}>
-                  <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Swiping</Text>
-                  <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Test</Text>
+                  <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Swiping</Text>
+                  <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Test</Text>
               </TouchableOpacity>
             </View> 
             <View style={{...styles.homeContainer, alignItems: 'flex-start', justifyContent: "center"}}>
               <TouchableOpacity style={styles.welcomeButton} onPress = {() => navigation.navigate('LandingPage', {testSelected: 'Scrolling'})}>
-                <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Scrolling</Text>
-                <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Test</Text>
+                <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Scrolling</Text>
+                <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Test</Text>
               </TouchableOpacity>
               <TouchableOpacity style={{...styles.welcomeButton}} onPress = {() => navigation.navigate('LandingPage', {testSelected: 'Typing'})}>
-                <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Typing</Text>
-                <Text style={{textAlign:"left", fontSize:25, fontWeight:"bold"}}>Test</Text>
+                <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Typing</Text>
+                <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Test</Text>
               </TouchableOpacity>
             </View> 
           </View>
@@ -70,21 +70,21 @@ const LandingPage = ({route, navigation}) => {
           return () => clearInterval(toggle);
       }
       if(startTime==0 && testSelected != 'Typing'){
-          navigation.navigate(testSelected + 'Screen', {'product': productValue, 'device': Device.modelName})
+          navigation.navigate(testSelected + 'Screen', {'product': productValue, 'device': Device.modelId})
           setStartTime("Begin")
       }else if (startTime==0 && testSelected == 'Typing'){
-        navigation.navigate(testSelected + 'Screen', {'product': productValue, 'device': Device.modelName, 'testMode': testMode})
+        navigation.navigate(testSelected + 'Screen', {'product': productValue, 'device': Device.modelId, 'testMode': testMode})
         setStartTime("Begin")
       }
   })
   
   return <View style={styles.container}>
           <Text style={{fontWeight:'bold',fontSize:20}}>Device under test</Text>
-          <Text style={{ fontSize:18}}>{Device.modelName}</Text>
-          <View style = {{padding: 20, alignItems: "center", paddingHorizontal: 80}}>
+          <Text style={{ fontSize:18}}>{Device.modelId}</Text>
+          <View style = {{padding: 20, alignItems: "center", paddingHorizontal: 80, zIndex:10}}>
             <Text style={{fontWeight:'bold',fontSize:20, marginBottom: 8}}>Select product to test</Text>
             <DropDownPicker
-              zIndex={5000}
+              zIndex={10}
               zIndexInverse={1000}
               open={productOpen}
               value={productValue}
@@ -101,7 +101,7 @@ const LandingPage = ({route, navigation}) => {
             />
           </View>
           {testSelected == 'Typing' && 
-            <View style = {{padding: 20, alignItems: "center", paddingHorizontal: 80}}>
+            <View style = {{padding: 20, alignItems: "center", paddingHorizontal: 80, zIndex: 5}}>
               <Text style={{fontWeight:'bold',fontSize:20, marginBottom: 8}}>Select test mode</Text>
               <TestTypeDrop onUpdate={onTestUpdate}></TestTypeDrop>
             </View>
@@ -127,9 +127,6 @@ export default function App() {
       // tx.executeSql(
       //   "drop table if exists tapResult"
       // );
-      // tx.executeSql(
-      //   "drop table if exists swipeResult"
-      // );
       tx.executeSql(
         "create table if not exists summary (id integer primary key not null, device text, testType text, testProduct text, testStatus boolean);"
       );
@@ -138,6 +135,9 @@ export default function App() {
       );
       tx.executeSql(
         "create table if not exists swipeResult (id integer primary key not null, tid integer, xDP real, yDP real, xPX integer, yPX integer, trialNumber integer, base64img text);"
+      );
+      tx.executeSql(
+        "create table if not exists scrollResult (id integer primary key not null, tid integer, xPos integer, yPos integer, alignment integer, trials integer, timeTaken real);"
       );
     });
   }, []);
