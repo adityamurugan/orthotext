@@ -40,27 +40,22 @@ export const ExpScroll = (props) => {
     async function handleVerify(){
         //calculate time to scroll
         let timeElapsed = ((new Date() * 1) - startTime)/1000
-        await db.execute("insert into scrollResult (tid, xPos, yPos, alignment, trials, timeTaken) values (?,?,?,?,?,?)",[tid, positionArray[upd].left, positionArray[upd].bottom, positionArray[upd].alignment, trials, timeElapsed])
-        let res = await db.execute("select * from scrollResult where tid = ?",[tid])       
-        console.log(res)
-        //console.log(trials)
-        setTrials(0)
-        console.log(timeElapsed)
+        await db.execute("insert into scrollResult (tid, xPos, yPos, alignment, trials, timeTaken) values (?,?,?,?,?,?)",[tid, positionArray[upd].left, positionArray[upd].bottom, positionArray[upd].alignment, trials, timeElapsed])    
         positionArray.splice(upd,1)
-        setPositionArray([...positionArray])
-        swipeComp.current.reset()
-        console.log(positionArray.length)
         if(positionArray.length==0){
             await db.execute("update summary set testStatus = ? where id = ?", [true, tid])
             navigation.navigate("Home")
+        }else{
+            let randIndex = Math.floor(Math.random() * positionArray.length)
+            setUpd(randIndex)
+            setPositionArray([...positionArray])
+            swipeComp.current.reset()
+            setTrials(0)
         }
-        let randIndex = Math.floor(Math.random() * positionArray.length)
-        setUpd(randIndex)
     }
 
     //set btnSize on position update
     useEffect(() => {
-        console.log('res')
         btnSize = positionArray[upd].alignment == 90 || positionArray[upd].alignment == 270?Dimensions.get('window').width*0.2:Dimensions.get('window').height*0.1
     }, [upd,positionArray])
 

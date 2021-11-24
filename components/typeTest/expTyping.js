@@ -3,7 +3,7 @@ import {SafeAreaView, StyleSheet, TextInput, View, Text } from "react-native";
 import { useNavigation, useRoute, CommonActions, NavigationContainer } from '@react-navigation/native';
 import {sampleSentences} from './sentences'
 let wrongIndexes
-let accurateStrokes, inaccurateStrokes, startTime, completedIndex, accuracyIndex, wordLength, wordMistakes, nextWordLength, arr, trialCount
+let accurateStrokes, inaccurateStrokes, startTime, completedIndex, accuracyIndex, wordLength, wordMistakes, nextWordLength, arr, trialCount, rawwpm
 
 export const ExpType = (props) => {
   const navigation = useNavigation();
@@ -42,6 +42,7 @@ export const ExpType = (props) => {
     startTime = 0
     accuracyIndex = 0
     wordLength = 0
+    rawwpm = 0
     let j=0
     nextWordLength = 0
     while(chars[j] != " "){
@@ -74,6 +75,7 @@ export const ExpType = (props) => {
     //console.log(text)
     if(startTime == 0){
       startTime = Date.now()*1
+      console.log(startTime)
     }
     setPrevCount(text?.length)
     if(prevCount>text?.length){
@@ -124,8 +126,8 @@ export const ExpType = (props) => {
               completedIndex = currentIndex+1
             }
           }
+
           //calculate and set accuracy
-          //console.log(currentIndex, accuracyIndex)
           if(currentIndex==accuracyIndex){
             accuracyIndex = currentIndex +1 
             accurateStrokes = accurateStrokes + 1
