@@ -20,6 +20,7 @@ export const resultPage = (props) => {
     let rts = []
     useEffect(() => {
         async function getData(){
+            //console.log(props.route.params.tid)
             let rightCountZ1 = await db.execute("select count(rightClick) as rightCount from tapResult where tid = ? and rightClick = ?  and xPos < ? and yPos < ?", [props.route.params.tid, 1, 45, 45])
             let timeTakenZ1 = await db.execute("select avg(timeTaken) as timeTaken from tapResult where tid = ? and xPos < ? and yPos < ?", [props.route.params.tid, 45, 45])
             let rightCountZ2 = await db.execute("select count(rightClick) as rightCount from tapResult where tid = ? and rightClick = ? and (xPos > ? or yPos > ?)", [props.route.params.tid, 1, 45, 45])
@@ -36,7 +37,7 @@ export const resultPage = (props) => {
             setTableData([acc,rts])
         }
         getData()
-    }, []);
+    }, [props.route.params.tid]);
 
     return (
         <View style={{...styles.container}}>
