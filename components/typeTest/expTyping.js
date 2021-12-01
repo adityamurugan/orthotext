@@ -2,8 +2,11 @@ import React from "react";
 import {SafeAreaView, StyleSheet, TextInput, View, Text } from "react-native";
 import { useNavigation, useRoute, CommonActions, NavigationContainer } from '@react-navigation/native';
 import {sampleSentences} from './sentences'
+import {Database} from "../../Database.js"
 let wrongIndexes
 let accurateStrokes, inaccurateStrokes, startTime, completedIndex, accuracyIndex, wordLength, wordMistakes, nextWordLength, arr, trialCount, rawwpm
+const db = new Database("result.db");
+let tid = 0;
 
 export const ExpType = (props) => {
   const navigation = useNavigation();
@@ -17,6 +20,7 @@ export const ExpType = (props) => {
   const [prevCount,setPrevCount] = React.useState(0)
   const [typingAccuracy, setAccuracy] = React.useState(0)
   const [wordspm, setWPM] = React.useState(0)
+  const [rawwordsPM, setrawWPM] = React.useState(0)
   let clr = charColor
   let chrs = chars
   const inputBox = React.useRef();
@@ -26,6 +30,12 @@ export const ExpType = (props) => {
 
   //initialize values on first render
   React.useEffect(() => {
+    async function writeData() {
+      const res1 = await db.execute("insert into summary (device, testProduct, testStatus, testType) values (?, ?, ?, ?)", [dev,prod,false,"typing"])
+      tid = res1.insertId
+      console.log(tid)
+    }
+    writeData()
     trialCount = 0
     arr = [];
     while(arr.length < 5){

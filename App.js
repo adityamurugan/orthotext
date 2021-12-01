@@ -127,8 +127,17 @@ export default function App() {
       // tx.executeSql(
       //   "drop table if exists tapResult"
       // );
+      // tx.executeSql(
+      //   "drop table if exists swipeResult"
+      // );
+      // tx.executeSql(
+      //   "drop table if exists scrollResult"
+      // );
+      // tx.executeSql(
+      //   "drop table if exists typeResult"
+      // );
       tx.executeSql(
-        "create table if not exists summary (id integer primary key not null, device text, testType text, testProduct text, testStatus boolean);"
+        "create table if not exists summary (id integer primary key not null, device text, testType text, testProduct text, testMode text, testStatus boolean);"
       );
       tx.executeSql(
         "create table if not exists tapResult (id integer primary key not null, tid integer, xPos integer, yPos integer, rightClick boolean, timeTaken real);"
@@ -138,6 +147,9 @@ export default function App() {
       );
       tx.executeSql(
         "create table if not exists scrollResult (id integer primary key not null, tid integer, xPos integer, yPos integer, alignment integer, trials integer, timeTaken real);"
+      );
+      tx.executeSql(
+        "create table if not exists typeResult (id integer primary key not null, tid integer, trialNumber integer , wpm real , accuracy real , rawwpm real);"
       );
     });
   }, []);
