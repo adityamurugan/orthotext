@@ -11,13 +11,18 @@ const db = new Database("result.db");
 const ResultCards = (props) => {
 const navigation = useNavigation()
 async function showFullResult(){
-  let res = await db.execute('select device, testProduct from summary where id = ?',[props.id])
+  let res = await db.execute('select device, testProduct,pid from summary where id = ?',[props.id])
+  console.log(res.rows)
   let prod = res.rows[0].testProduct
   let dev = res.rows[0].device
+  let pid = res.rows[0].pid
   if(props.valueTest=='tapping'){
-    navigation.navigate('resultPage', {tid: props.id, device: dev, product: prod});
+    navigation.navigate('resultPage', {tid: props.id, device: dev, product: prod, pid: pid});
+  }else if(props.valueTest=='swiping'){
+    navigation.navigate('swipeResultPage', {tid: props.id, device: dev, product: prod, pid: pid});
   }else{
-    navigation.navigate('swipeResultPage', {tid: props.id, device: dev, product: prod});
+    console.log(props.id)
+    navigation.navigate('scrollResultPage', {tid: props.id, device: dev, product: prod, pid: pid});
   }
   
 }
@@ -42,7 +47,8 @@ export const resultSelect = (props) => {
     const [valueTest, setValueTest] = useState('tapping');
     const [itemsTest, setTestItems] = useState([
       {label: 'Swiping', value: 'swiping'},
-      {label: 'Tapping', value: 'tapping'}
+      {label: 'Tapping', value: 'tapping'},
+      {label: 'Scrolling', value: 'scrolling'}
     ]);
 
     let data = []
@@ -61,7 +67,7 @@ export const resultSelect = (props) => {
 
     //generate result ids array based on test and product selected
     async function showResults(){
-      let table = (valueTest=='tapping')?'tapResult':'swipeResult'
+      let table = (valueTest=='tapping')?'tapResult':(valueTest=='swiping')?'swipeResult':'scrollResult'
       let idArr = await db.execute('select id from summary where testProduct = ? and testStatus = true and testType = ? order by id desc limit 3',[value,valueTest])
       let idExtract = idArr.rows.map(a => a.id)
       let resultDataOverall = await db.execute('select tid as tid from ' + table + ' group by tid order by id desc')

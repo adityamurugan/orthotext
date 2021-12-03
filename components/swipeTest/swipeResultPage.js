@@ -43,7 +43,7 @@ export const swipeResultPage = (props) => {
             setHeightArray(heightarray)
         }
         getData()
-    }, []);
+    }, [props.route.params.tid]);
     return (
         <ScrollView style={{...styles.container}}>
             <View style={{margin: 7, alignItems: "center"}}>
@@ -97,7 +97,7 @@ export const swipeResultPage = (props) => {
                 <TouchableOpacity style={{...styles.roundButton}}>
                     <Text>View Detailed Results</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={{...styles.roundButton}}>
+                <TouchableOpacity onPress = {() => navigation.navigate('resultSelect')} style={{...styles.roundButton}}>
                     <Text>View Another Result</Text>
                 </TouchableOpacity>
             </View>

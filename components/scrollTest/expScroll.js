@@ -25,15 +25,17 @@ export const ExpScroll = (props) => {
     const [positionArray, setPositionArray] = useState(posi)
     let prod = route.params.product
     let dev = route.params.device
+    let pid = route.params.PID
 
     //create entry in swipe test summary table at start
     useEffect(() => {
         //function to write testid data to db
         async function writeData() {
-            const res1 = await db.execute("insert into summary (device, testProduct, testStatus, testType) values (?, ?, ?, ?)", [dev,prod,false,"scrolling"])
+            const res1 = await db.execute("insert into summary (device, testProduct, testStatus, testType, pid) values (?, ?, ?, ?, ?)", [dev,prod,false,"scrolling",pid])
             tid = res1.insertId
         }
         writeData()
+        console.log(pid)
         },[])
 
     //function to execute on successful scroll
@@ -44,7 +46,18 @@ export const ExpScroll = (props) => {
         positionArray.splice(upd,1)
         if(positionArray.length==0){
             await db.execute("update summary set testStatus = ? where id = ?", [true, tid])
-            navigation.navigate("Home")
+            navigation.dispatch(
+                CommonActions.reset({
+                    index: 1,
+                    routes: [
+                    { name: 'Home' },
+                    {
+                        name: 'scrollResultPage',
+                        params:  {tid: tid, device: dev, product: prod, pid: pid}
+                    },
+                    ],
+                })
+                );
         }else{
             let randIndex = Math.floor(Math.random() * positionArray.length)
             setUpd(randIndex)
