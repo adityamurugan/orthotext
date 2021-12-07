@@ -7,6 +7,7 @@ let wrongIndexes
 let accurateStrokes, inaccurateStrokes, startTime, completedIndex, accuracyIndex, wordLength, wordMistakes, nextWordLength, arr, trialCount, rawwpm
 const db = new Database("result.db");
 let tid = 0;
+let timer
 
 export const ExpType = (props) => {
   const navigation = useNavigation();
@@ -27,11 +28,40 @@ export const ExpType = (props) => {
   let prod = route.params.product
   let dev = route.params.device
   let testType = route.params.testMode 
+  let pid = route.params.PID
+
+  //function to record results
+  async function recordData(){
+    let timeNow = Date.now()*1
+    let timeElapsed = startTime==0?0:((timeNow - startTime)/1000)
+    let rec = await db.execute("insert into typeResult (tid,trialNumber,wpm,accuracy,timeElapsed) values (?,?,?,?,?)",[tid,trialCount,wordspm,typingAccuracy,timeElapsed])
+    let result = await db.execute("select timeElapsed, wpm, trialNumber from typeResult where tid = ?",[tid])
+    console.log(result.rows)
+  }
+
+  async function updateStatus(){
+    await db.execute("update summary set testStatus = ? where id = ?", [true, tid])
+  }
+
+  function navigateHome(){
+    navigation.dispatch(
+      CommonActions.reset({
+          index: 1,
+          routes: [
+          { name: 'Home' },
+          {
+              name: 'typeResultPage',
+              params:  {tid: tid, device: dev, product: prod, pid: pid}
+          },
+          ],
+      })
+      );
+  }
 
   //initialize values on first render
   React.useEffect(() => {
     async function writeData() {
-      const res1 = await db.execute("insert into summary (device, testProduct, testStatus, testType) values (?, ?, ?, ?)", [dev,prod,false,"typing"])
+      const res1 = await db.execute("insert into summary (device, testProduct, testStatus, testType, testMode, pid) values (?, ?, ?, ?, ?, ?)", [dev,prod,false,"typing",testType,pid])
       tid = res1.insertId
       console.log(tid)
     }
@@ -61,6 +91,7 @@ export const ExpType = (props) => {
     }
   },[])
 
+  //re-initialize values on trial update
   React.useEffect(()=>{
     wrongIndexes = []
     accurateStrokes = 0
@@ -78,13 +109,33 @@ export const ExpType = (props) => {
     setCurrentIndex(0)
     setInputText('')
     setText('')
+    setTickState(false)
+    clearInterval(timer)
   },[sentence])
+
+  //record data every 3 seconds
+  const [timerTick, setTimerTick] = React.useState(0)
+  const [tickState, setTickState] = React.useState(false)
+  React.useEffect(()=>{
+    if(tickState){
+      timer = setInterval(() => {
+        setTimerTick((timerTick)=>timerTick+1)
+      }, 3000);
+    }
+  return () => clearInterval(timer);
+  },[tickState])
+
+  React.useEffect(()=>{
+    //console.log(timerTick)
+    recordData()
+  },[timerTick])
 
 
   const pressTrigger = (text) =>{
     //console.log(text)
     if(startTime == 0){
       startTime = Date.now()*1
+      setTickState(true)
       console.log(startTime)
     }
     setPrevCount(text?.length)
@@ -103,15 +154,19 @@ export const ExpType = (props) => {
       if(enteredChar != 'Backspace'){
         //if trial count < 5, move to next trial or navigate home
         if(currentIndex+1==sentence.length && (testType == 'noDelete' || testType == 'skip')){
+          recordData()
           if(trialCount == 5){
-            navigation.navigate("Home")
+            updateStatus()
+            navigateHome()
           }else{
             setSentence(sampleSentences[arr[trialCount]].sentence)
             trialCount = trialCount + 1
           }
         }else if(currentIndex-wrongIndexes.length+1==sentence.length){
+          recordData()
           if(trialCount == 5){
-            navigation.navigate("Home")
+            updateStatus()
+            navigateHome()
           }else{
             setSentence(sampleSentences[arr[trialCount]].sentence)
             trialCount = trialCount + 1
@@ -164,6 +219,11 @@ export const ExpType = (props) => {
             let acc = (accurateStrokes/(accurateStrokes+inaccurateStrokes)*100).toFixed(2)
             setAccuracy(acc)
           }
+          //calculate and set WPM
+          let timeNow = Date.now()*1
+          let timeElapsed = (timeNow - startTime)/60000
+          let wpm = (accurateStrokes/5)/timeElapsed
+          setWPM(wpm.toFixed(2))
           //set char bgColor to red
           clr[currentIndex]="#E94560"
           if(testType=='insert'){
@@ -216,8 +276,8 @@ export const ExpType = (props) => {
             <Text>{wordspm}</Text>
           </View>
         </View>
-        <View style={{paddingHorizontal:30, position: "absolute",top:"30%",flex:1,  backgroundColor: "#393E46"}}>
-          <Text style={{fontSize:30, textAlign: "left", lineHeight: 40}}>
+        <View style={{paddingHorizontal:20, position: "absolute",top:"20%",flex:1,  backgroundColor: "#393E46"}}>
+          <Text style={{fontSize:20, textAlign: "left", lineHeight: 30}}>
           {chars.map((char, index) => (
             <Text key = {index} style={{color: "white", textDecorationLine:currentIndex==index?"underline":"none", backgroundColor: charColor[index]?charColor[index]:"#393E46"}}>{char}</Text>
           ))}

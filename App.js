@@ -13,6 +13,7 @@ import { ExpScroll } from './components/scrollTest/expScroll';
 import { resultSelect } from './components/resultSelect';
 import { ExpType } from './components/typeTest/expTyping';
 import { TestTypeDrop } from './components/typeTest/testSelect';
+import { typeResultPage } from './components/typeTest/typeResultPage';
 import { scrollResultPage } from './components/scrollTest/scrollResultPage';
 import DropDownPicker from 'react-native-dropdown-picker';
 import * as SQLite from "expo-sqlite";
@@ -119,7 +120,7 @@ const LandingPage = ({route, navigation}) => {
             </View>
           }
 
-          <TouchableOpacity disabled = {btnState} style={(btnState)?{...styles.homeButtonDisabled}:{...styles.homeButton}} onPress = {() => setStartTime(5)}>
+          <TouchableOpacity disabled = {btnState} style={(btnState)?{...styles.homeButtonDisabled}:{...styles.homeButton}} onPress = {() => setStartTime(3)}>
             <Text>{startTime}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={{...styles.homeButton}} onPress = {() => navigation.navigate('resultSelect')}>
@@ -133,21 +134,21 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   useEffect(() => {
     db.transaction((tx) => {
-      tx.executeSql(
-       "drop table if exists summary"
-      );
-      tx.executeSql(
-        "drop table if exists tapResult"
-      );
-      tx.executeSql(
-        "drop table if exists swipeResult"
-      );
-      tx.executeSql(
-        "drop table if exists scrollResult"
-      );
-      tx.executeSql(
-        "drop table if exists participants"
-      );
+      // tx.executeSql(
+      //  "drop table if exists summary"
+      // );
+      // tx.executeSql(
+      //   "drop table if exists tapResult"
+      // );
+      // tx.executeSql(
+      //   "drop table if exists swipeResult"
+      // );
+      // tx.executeSql(
+      //   "drop table if exists typeResult"
+      // );
+      // tx.executeSql(
+      //   "drop table if exists participants"
+      // );
       tx.executeSql(
         "create table if not exists summary (id integer primary key not null, device text, testType text, testProduct text, testMode text, testStatus boolean, pid integer);"
       );
@@ -161,7 +162,7 @@ export default function App() {
         "create table if not exists scrollResult (id integer primary key not null, tid integer, xPos integer, yPos integer, alignment integer, trials integer, timeTaken real);"
       );
       tx.executeSql(
-        "create table if not exists typeResult (id integer primary key not null, tid integer, trialNumber integer , wpm real , accuracy real , rawwpm real);"
+        "create table if not exists typeResult (id integer primary key not null, tid integer, trialNumber integer , wpm real , accuracy real , rawwpm real, timeElapsed integer);"
       );
       tx.executeSql(
         "create table if not exists participants (id integer primary key not null, firstName text, lastName text);"
@@ -191,6 +192,7 @@ export default function App() {
           <Stack.Screen name="ScrollingScreen" component={ExpScroll}  options={{title: 'Scrolling Test' }}/>
           <Stack.Screen name="scrollResultPage" component={scrollResultPage}  options={{title: 'Results' }}/>
           <Stack.Screen name="TypingScreen" component={ExpType}  options={{title: 'Typing Test' }}/>
+          <Stack.Screen name="typeResultPage" component={typeResultPage}  options={{title: 'Results' }}/>
         </Stack.Navigator>
       </NavigationContainer>
   );
