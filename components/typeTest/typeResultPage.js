@@ -19,7 +19,7 @@ export const typeResultPage = (props) => {
     useEffect(() => {
         async function getData(){
             for(let i=1;i<6;i+=1){
-                let res = await db.execute("select * from typeResult where tid=? and trialNumber = ? order by tid desc limit 1",[props.route.params.tid,i])
+                let res = await db.execute("select * from typeResult where tid=? and trialNumber = ? order by id desc limit 1",[props.route.params.tid,i])
                 console.log(res.rows)
                 col1.push([res.rows[0].wpm,res.rows[0].accuracy])
             }

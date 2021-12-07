@@ -11,6 +11,7 @@ export const swipeResultPage = (props) => {
     const navigation = useNavigation();
     const [trialCol,setTrialCol] = useState([])
     const [sumWidth,setSumWidth] = useState([])
+    const [participant, setParticipant] = useState(null)
     const [sumHeight,setSumHeight] = useState([])
     const [hwCol,sethwCol] = useState([])
     const [col1data,setcol1Data] = useState([])
@@ -36,6 +37,9 @@ export const swipeResultPage = (props) => {
                 colHW.push('Height', 'Width')
                 heightarray.push(30,30)
             });
+            let res3 = await db.execute("select firstName, lastName from participants where id = ?",[props.route.params.pid])
+            console.log(props.route.params.pid)
+            setParticipant(res3.rows[0].firstName + " " + res3.rows[0].lastName)
             setTrialCol(colTrial)
             sethwCol(colHW)
             setcol1Data(col1)
@@ -70,11 +74,14 @@ export const swipeResultPage = (props) => {
                 </View>
             </View>
             <View style ={{alignItems: 'center', borderWidth: 1, borderRadius:10, padding: 10, margin: 10}}>
-                    <Text style = {{fontWeight:'bold'}}>Device Tested: {props.route.params.device}</Text>
-                </View>
-                <View style ={{alignItems: 'center', borderWidth: 1, borderRadius:10, padding: 10, margin: 10}}>
-                    <Text style={{fontWeight:'bold'}}>Product Tested: {props.route.params.product}</Text>
-                </View>
+                <Text style = {{fontWeight:'bold'}}>Device Tested: {props.route.params.device}</Text>
+            </View>
+            <View style ={{alignItems: 'center', borderWidth: 1, borderRadius:10, padding: 10, margin: 10}}>
+                <Text style={{fontWeight:'bold'}}>Product Tested: {props.route.params.product}</Text>
+            </View>
+            <View style ={{alignItems: 'center', borderWidth: 1, borderRadius:10, padding: 10, margin: 10}}>
+                <Text style={{fontWeight:'bold'}}>Participant: {participant}</Text>
+            </View>
             <View style={{margin: 7, alignItems: "center"}}>
                 <Text style = {{fontSize: 20, fontWeight: "100"}}>Result Table</Text>
             </View>

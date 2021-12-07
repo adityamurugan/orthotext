@@ -1,6 +1,7 @@
 import * as Device from 'expo-device';
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, TouchableOpacity, View, Button, Text, TextPropTypes } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, TouchableOpacity, View, ImageBackground, Text, TextInput, TextPropTypes,SafeAreaView } from 'react-native';
+import Modal from "react-native-modal";
 import { ParticipantDrop } from './components/participantDrop';
 import { ExpButton } from './components/expButton';
 import { TapResult } from './components/tapResultMap';
@@ -17,32 +18,106 @@ import { typeResultPage } from './components/typeTest/typeResultPage';
 import { scrollResultPage } from './components/scrollTest/scrollResultPage';
 import DropDownPicker from 'react-native-dropdown-picker';
 import * as SQLite from "expo-sqlite";
+import {Database} from "./Database"
 
 const db = SQLite.openDatabase("result.db")
+const dbs = new Database("result.db");
 
 //Home screen function
 const BeginPage = ({navigation}) => {
-  return  <View style = {{flex:1}}>
-            <View style={{...styles.homeContainer, alignItems: 'flex-end', justifyContent: "center"}}>
-              <TouchableOpacity style={styles.welcomeButton} onPress = {() => navigation.navigate('LandingPage', {testSelected: 'Tapping'})}>
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [textFN, onChangeTextFN] = React.useState("");
+  const [textLN, onChangeTextLN] = React.useState("");
+  const ref_input2 = useRef();
+
+  //function to toggle modal visibility
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+    onChangeTextFN("")
+    onChangeTextLN("")
+  };
+
+  async function addParticipant() {
+    console.log(textLN)
+    dbs.execute('insert into participants (firstName,lastName) values (?,?)',[textFN,textLN])
+    setModalVisible(!isModalVisible);
+    onChangeTextFN("")
+    onChangeTextLN("")
+  }
+
+  return  <View style = {{flex:1, flexDirection: "column"}}>
+            <View style={{...styles.homeContainer, justifyContent: "center", flexWrap:"wrap", alignContent:"center"}}>
+              <TouchableOpacity style={{...styles.welcomeButton}} onPress = {() => navigation.navigate('LandingPage', {testSelected: 'Tapping'})}>
+                  <ImageBackground source={require('./assets/hb1.png')} style={{width: '100%', height: '100%', opacity:0.1, position:"absolute", alignSelf:"center"}}>
+                  </ImageBackground>
                   <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Tapping</Text>
                   <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Test</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={{...styles.welcomeButton}} onPress = {() => navigation.navigate('LandingPage', {testSelected: 'Swipe'})}>
+                <ImageBackground source={require('./assets/hb2.png')} style={{width: '100%', height: '100%', opacity:0.1, position:"absolute", alignSelf:"center"}}>
+                  </ImageBackground>
                   <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Swiping</Text>
                   <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Test</Text>
               </TouchableOpacity>
-            </View> 
-            <View style={{...styles.homeContainer, alignItems: 'flex-start', justifyContent: "center"}}>
               <TouchableOpacity style={styles.welcomeButton} onPress = {() => navigation.navigate('LandingPage', {testSelected: 'Scrolling'})}>
+              <ImageBackground source={require('./assets/hb4.png')} style={{width: '100%', height: '100%', opacity:0.1, position:"absolute", alignSelf:"center"}}>
+                  </ImageBackground>
                 <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Scrolling</Text>
                 <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Test</Text>
               </TouchableOpacity>
               <TouchableOpacity style={{...styles.welcomeButton}} onPress = {() => navigation.navigate('LandingPage', {testSelected: 'Typing'})}>
+              <ImageBackground source={require('./assets/hb3.png')} style={{width: '100%', height: '100%', opacity:0.1, position:"absolute", alignSelf:"center"}}>
+                  </ImageBackground>
                 <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Typing</Text>
                 <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Test</Text>
               </TouchableOpacity>
+              <TouchableOpacity style={styles.welcomeButton} onPress = {toggleModal}>
+              <ImageBackground source={require('./assets/hb5.png')} style={{width: '100%', height: '100%', opacity:0.1, position:"absolute", alignSelf:"center"}}>
+                  </ImageBackground>
+                <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Add</Text>
+                <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Participant</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{...styles.welcomeButton}}>
+              <ImageBackground source={require('./assets/hb6.png')} style={{width: '100%', height: '100%', opacity:0.1, position:"absolute", alignSelf:"center"}}>
+                  </ImageBackground>
+                <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Download</Text>
+                <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Data</Text>
+              </TouchableOpacity>
             </View> 
+            <Modal isVisible={isModalVisible} hideModalContentWhileAnimating={true} useNativeDriver={true} animationIn="slideInDown" backdropTransitionInTiming={0} backdropColor="white" backdropOpacity={1}>
+              <SafeAreaView style={{flex:1, marginTop:"30%"}}>
+                <Text style={{alignSelf:"center"}}>Enter participant info:</Text>
+                <TextInput
+                  style={styles.input}
+                  onChangeText={onChangeTextFN}
+                  value={textFN}
+                  autoCorrect={false}
+                  clearButtonMode="while-editing"
+                  placeholder="First Name"
+                  returnKeyType="next"
+                  onSubmitEditing={() => ref_input2.current.focus()}
+                />
+                <TextInput
+                  style={styles.input}
+                  onChangeText={onChangeTextLN}
+                  value={textLN}
+                  autoCorrect={false}
+                  clearButtonMode="while-editing"
+                  placeholder="Last Name"
+                  ref={ref_input2}
+                  onSubmitEditing={addParticipant}
+                  enablesReturnKeyAutomatically = {true}
+                />
+                <View>
+                <TouchableOpacity disabled={((textFN && textLN) ==""?true:false)} style={(textFN && textLN) ==""?{...styles.homeButtonDisabled, alignSelf:"center"}:{...styles.homeButton,alignSelf:"center"}} onPress={addParticipant}>
+                  <Text>Register</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={{...styles.homeButton,alignSelf:"center"}} onPress={toggleModal}>
+                  <Text>Close</Text>
+                </TouchableOpacity>
+                </View>
+              </SafeAreaView>
+            </Modal>
           </View>
 }
 
@@ -206,6 +281,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  input: {
+    height: 60,
+    margin: 12,
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 20
+  },
   homeButton: {
     marginTop: 20,
     alignItems: 'center',
@@ -225,19 +307,21 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   welcomeButton: {
-    margin: 20,
+    margin: 10,
     elevation: 10,
-    borderWidth: 0.5,
+    borderWidth: 1.5,
     justifyContent: "center",
     width: 150,
     height:150,
-    backgroundColor: "#DDDDDD",
+    backgroundColor: "#EDEDED",
+    borderColor:"#3C415C",
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 30,
   },
   homeContainer: {
     flex: 1,
     backgroundColor: '#fff',
     flexDirection: 'row',
+    alignItems:"center"
   },
 });

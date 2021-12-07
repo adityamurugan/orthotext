@@ -16,6 +16,7 @@ export const resultPage = (props) => {
         ['a', 'b', 'c']
       ])
     const [tableTitle, setTableTitle] = useState(['Accuracy (%)', 'Reaction Time (s)'])
+    const [participant, setParticipant] = useState(null)
     let acc = []
     let rts = []
     useEffect(() => {
@@ -34,6 +35,9 @@ export const resultPage = (props) => {
             let rtimeOverall = timeTakenOverall.rows[0].timeTaken.toFixed(2)
             acc.push(accZ1,accZ2,accOverall)
             rts.push(rtimeZ1,rtimeZ2,rtimeOverall)
+            let res3 = await db.execute("select firstName, lastName from participants where id = ?",[props.route.params.pid])
+            console.log(props.route.params.pid)
+            setParticipant(res3.rows[0].firstName + " " + res3.rows[0].lastName)
             setTableData([acc,rts])
         }
         getData()
@@ -58,6 +62,9 @@ export const resultPage = (props) => {
                 </View>
                 <View style ={{alignItems: 'center', borderWidth: 1, borderRadius:10, padding: 10, margin: 10}}>
                     <Text style={{fontWeight:'bold'}}>Product Tested: {props.route.params.product}</Text>
+                </View>
+                <View style ={{alignItems: 'center', borderWidth: 1, borderRadius:10, padding: 10, margin: 10}}>
+                    <Text style={{fontWeight:'bold'}}>Participant: {participant}</Text>
                 </View>
             </View>
             <View style={{alignItems: "center", marginTop: 15}}>

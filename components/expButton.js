@@ -13,6 +13,7 @@ export const ExpButton = (props) => {
     const [xPos, setXPos] = useState([])
     let prod = route.params.product
     let dev = route.params.device
+    let pid = route.params.PID
 
     //function to run onMount
     useEffect(() => {
@@ -26,7 +27,7 @@ export const ExpButton = (props) => {
         //function to write testid data to db
         async function writeData() {
             console.log(typeof prod)
-            const res1 = await db.execute("insert into summary (device, testProduct, testStatus, testType) values (?, ?, ?, ?)", [dev,prod,false,"tapping"])
+            const res1 = await db.execute("insert into summary (device, testProduct, testStatus, testType, pid) values (?, ?, ?, ?, ?)", [dev,prod,false,"tapping",pid])
             tid = res1.insertId
             console.log(res1)
         }
@@ -77,7 +78,7 @@ export const ExpButton = (props) => {
                 { name: 'Home' },
                 {
                     name: 'resultPage',
-                    params:  {tid: tid, device: dev, product: prod}
+                    params:  {tid: tid, device: dev, product: prod, pid:pid}
                 },
                 ],
             })

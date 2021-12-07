@@ -13,6 +13,7 @@ export const ExpType = (props) => {
   const navigation = useNavigation();
   const route = useRoute();
   const [text, setText] = React.useState('');
+  const [trialState, setTrialState] = React.useState(0);
   const [inputText, setInputText] = React.useState('');
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [sentence, setSentence] = React.useState(sampleSentences[6].sentence)
@@ -35,7 +36,7 @@ export const ExpType = (props) => {
     let timeNow = Date.now()*1
     let timeElapsed = startTime==0?0:((timeNow - startTime)/1000)
     let rec = await db.execute("insert into typeResult (tid,trialNumber,wpm,accuracy,timeElapsed) values (?,?,?,?,?)",[tid,trialCount,wordspm,typingAccuracy,timeElapsed])
-    let result = await db.execute("select timeElapsed, wpm, trialNumber from typeResult where tid = ?",[tid])
+    let result = await db.execute("select timeElapsed, accuracy, trialNumber from typeResult where tid = ?",[tid])
     console.log(result.rows)
   }
 
@@ -75,6 +76,7 @@ export const ExpType = (props) => {
     console.log(arr)
     setSentence(sampleSentences[arr[trialCount]].sentence)
     trialCount = trialCount + 1
+    setTrialState(trialCount)
     wrongIndexes = []
     accurateStrokes = 0
     inaccurateStrokes = 0
@@ -161,6 +163,7 @@ export const ExpType = (props) => {
           }else{
             setSentence(sampleSentences[arr[trialCount]].sentence)
             trialCount = trialCount + 1
+            setTrialState(trialCount)
           }
         }else if(currentIndex-wrongIndexes.length+1==sentence.length){
           recordData()
@@ -170,6 +173,7 @@ export const ExpType = (props) => {
           }else{
             setSentence(sampleSentences[arr[trialCount]].sentence)
             trialCount = trialCount + 1
+            setTrialState(trialCount)
           }
         }
 
@@ -267,6 +271,10 @@ export const ExpType = (props) => {
   return (
     <SafeAreaView style={{flex:1, backgroundColor: "#393E46"}}>
         <View style = {{flexDirection: "row", height: "10%", justifyContent: "space-evenly", alignItems: "stretch", marginTop: 20}}>
+          <View style={{borderWidth: 1, width: "30%", alignItems: "center", justifyContent: "space-evenly", borderRadius: 20, backgroundColor: "white"}}>
+            <Text style={{fontSize: 20, fontWeight: "bold"}}>Trial</Text>
+            <Text>{trialState} of 5</Text>
+          </View>
           <View style={{borderWidth: 1, width: "30%", alignItems: "center", justifyContent: "space-evenly", borderRadius: 20, backgroundColor: "white"}}>
             <Text style={{fontSize: 20, fontWeight: "bold"}}>Accuracy</Text>
             <Text>{typingAccuracy} %</Text>

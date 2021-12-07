@@ -17,6 +17,7 @@ export const SwipeCanvas = (props) => {
     const [trialState, setTrialState] = useState(true)
     let prod = route.params.product
     let dev = route.params.device
+    let pid = route.params.PID
     const style = `.m-signature-pad {box-shadow: none; border: none; } 
     .m-signature-pad--body {border: none;}
     body,html {
@@ -33,7 +34,7 @@ export const SwipeCanvas = (props) => {
 
       //function to write testid data to db
       async function writeData() {
-        const res1 = await db.execute("insert into summary (device, testProduct, testStatus, testType) values (?, ?, ?, ?)", [dev,prod,false,"swiping"])
+        const res1 = await db.execute("insert into summary (device, testProduct, testStatus, testType, pid) values (?, ?, ?, ?, ?)", [dev,prod,false,"swiping",pid])
         tid = res1.insertId
         //console.log(res1)
       }
@@ -70,7 +71,7 @@ export const SwipeCanvas = (props) => {
               { name: 'Home' },
               {
                   name: 'swipeResultPage',
-                  params:  {tid: tid, device: dev, product: prod}
+                  params:  {tid: tid, device: dev, product: prod, pid:pid}
               },
               ],
           })
