@@ -3,6 +3,10 @@ import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TouchableWithoutF
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { Table, TableWrapper, Cell, Row, Rows, Col, Cols } from 'react-native-table-component';
 import {Database} from "../../Database.js"
+const { Parser } = require('json2csv');
+const json2csvParser = new Parser();
+import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
 
 const db = new Database("result.db");
 
@@ -17,6 +21,19 @@ export const swipeResultPage = (props) => {
     const [col1data,setcol1Data] = useState([])
     const [col2data,setcol2Data] = useState([])
     const [heightArray,setHeightArray] = useState([])
+
+    async function downloadData() {
+        let res = await db.execute("select (trialNumber+1) as Trial,xDP as heightDP,yDP as widthDP,xPX as heightPX,yPX as widthPX from swipeResult where tid = ?",[props.route.params.tid])
+        const csv = json2csvParser.parse(res.rows);
+        //console.log(csv);
+        let prodNmae = props.route.params.product.replace(/\s/g, '');
+        let partName = participant.replace(/\s/g, '');
+        let filename = 'swipeResult_id_' + props.route.params.tid + '_' + props.route.params.device + '_' + prodNmae + '_' + partName + '.csv'; // or some other way to generate filename
+        let filepath = `${FileSystem.documentDirectory}/${filename}`;
+        await FileSystem.writeAsStringAsync(filepath, csv);
+        await Sharing.shareAsync(filepath, { mimeType: 'text/csv' })
+    }
+
     useEffect(() => {
         async function getData(){
             let colTrial = []
@@ -103,6 +120,9 @@ export const swipeResultPage = (props) => {
             <View style={{alignItems: "center", margin: 15, marginBottom: 60}}>
                 <TouchableOpacity style={{...styles.roundButton}}>
                     <Text>View Detailed Results</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={downloadData} style={{...styles.roundButton}}>
+                    <Text>Download Data</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress = {() => navigation.navigate('resultSelect')} style={{...styles.roundButton}}>
                     <Text>View Another Result</Text>

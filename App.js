@@ -16,6 +16,7 @@ import { ExpType } from './components/typeTest/expTyping';
 import { TestTypeDrop } from './components/typeTest/testSelect';
 import { typeResultPage } from './components/typeTest/typeResultPage';
 import { scrollResultPage } from './components/scrollTest/scrollResultPage';
+import { downloadPage } from './components/downloadPage';
 import DropDownPicker from 'react-native-dropdown-picker';
 import * as SQLite from "expo-sqlite";
 import {Database} from "./Database"
@@ -77,7 +78,7 @@ const BeginPage = ({navigation}) => {
                 <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Add</Text>
                 <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Participant</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={{...styles.welcomeButton}}>
+              <TouchableOpacity style={{...styles.welcomeButton}} onPress={()=>navigation.navigate('downloadPage')}>
               <ImageBackground source={require('./assets/hb6.png')} style={{width: '100%', height: '100%', opacity:0.1, position:"absolute", alignSelf:"center"}}>
                   </ImageBackground>
                 <Text style={{textAlign:"left", fontSize:23, fontWeight:"normal"}}>Download</Text>
@@ -95,6 +96,7 @@ const BeginPage = ({navigation}) => {
                   clearButtonMode="while-editing"
                   placeholder="First Name"
                   returnKeyType="next"
+                  placeholderTextColor="black"
                   onSubmitEditing={() => ref_input2.current.focus()}
                 />
                 <TextInput
@@ -107,6 +109,7 @@ const BeginPage = ({navigation}) => {
                   ref={ref_input2}
                   onSubmitEditing={addParticipant}
                   enablesReturnKeyAutomatically = {true}
+                  placeholderTextColor="black"
                 />
                 <View>
                 <TouchableOpacity disabled={((textFN && textLN) ==""?true:false)} style={(textFN && textLN) ==""?{...styles.homeButtonDisabled, alignSelf:"center"}:{...styles.homeButton,alignSelf:"center"}} onPress={addParticipant}>
@@ -222,6 +225,9 @@ export default function App() {
       //   "drop table if exists typeResult"
       // );
       // tx.executeSql(
+      //   "drop table if exists scrollResult"
+      // );
+      // tx.executeSql(
       //   "drop table if exists participants"
       // );
       tx.executeSql(
@@ -268,6 +274,7 @@ export default function App() {
           <Stack.Screen name="scrollResultPage" component={scrollResultPage}  options={{title: 'Results' }}/>
           <Stack.Screen name="TypingScreen" component={ExpType}  options={{title: 'Typing Test' }}/>
           <Stack.Screen name="typeResultPage" component={typeResultPage}  options={{title: 'Results' }}/>
+          <Stack.Screen name="downloadPage" component={downloadPage}  options={{title: 'Download' }}/>
         </Stack.Navigator>
       </NavigationContainer>
   );
