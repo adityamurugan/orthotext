@@ -4,6 +4,10 @@ import { CommonActions, useNavigation, useRoute } from '@react-navigation/native
 import { Table, TableWrapper, Row, Rows, Col } from 'react-native-table-component';
 import {Database} from "../Database"
 import { TapResult } from './tapResultMap';
+const { Parser } = require('json2csv');
+const json2csvParser = new Parser();
+import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
 
 const db = new Database("result.db");
 
@@ -19,6 +23,19 @@ export const resultPage = (props) => {
     const [participant, setParticipant] = useState(null)
     let acc = []
     let rts = []
+
+    async function downloadData() {
+        let res = await db.execute("select id,xPos,yPos,rightClick,timeTaken  from tapResult where tid = ?",[props.route.params.tid])
+        const csv = json2csvParser.parse(res.rows);
+        //console.log(csv);
+        let prodNmae = props.route.params.product.replace(/\s/g, '');
+        let partName = participant.replace(/\s/g, '');
+        let filename = 'tapResult_id_' + props.route.params.tid + '_' + props.route.params.device + '_' + prodNmae + '_' + partName + '.csv'; // or some other way to generate filename
+        let filepath = `${FileSystem.documentDirectory}/${filename}`;
+        await FileSystem.writeAsStringAsync(filepath, csv);
+        await Sharing.shareAsync(filepath, { mimeType: 'text/csv' })
+    }
+
     useEffect(() => {
         async function getData(){
             //console.log(props.route.params.tid)
@@ -70,6 +87,9 @@ export const resultPage = (props) => {
             <View style={{alignItems: "center", marginTop: 15}}>
                 <TouchableOpacity onPress = {() => navigation.navigate('TapResult', {params: {tid: props.route.params.tid, tdata: tableData}})} style={{...styles.roundButton}}>
                     <Text>View Detailed Results</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress = {downloadData}  style={{...styles.roundButton}}>
+                    <Text>Download Data</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress = {() => navigation.navigate('resultSelect')} style={{...styles.roundButton}}>
                     <Text>View Another Result</Text>
